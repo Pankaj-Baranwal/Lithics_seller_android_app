@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/my_account"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="My Account" />
+        <item
+            android:id="@+id/inventory"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Inventory" />
+        <item
+            android:id="@+id/my_orders"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="My Orders" />
+        <item
+            android:id="@+id/schedule_pickup"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Schedule Pickup" />
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Settings" />
+    </group>
+
+    <item
+        android:icon="@drawable/ic_menu_manage"
+        android:title="Contact Us">
+        <menu>
+            <item
+                android:id="@+id/nav_email"
+                android:icon="@drawable/ic_menu_share"
+                android:title="E-mail" />
+            <item
+                android:id="@+id/nav_fb"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Facebook" />
+        </menu>
+    </item>
+
+</menu>
