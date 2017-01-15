@@ -12,7 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.fragments.Home;
@@ -21,8 +23,13 @@ import com.fame.plumbum.lithicsin.fragments.MyAccount;
 import static android.view.View.GONE;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+
     LinearLayout analytics_home;
     FrameLayout view;
+    TextView connect;
+    ImageButton slide, fb, blog, twitter;
+    Button cancel;
+    String fb_link, blog_link, twitter_link;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +96,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            analytics_home.setVisibility(GONE);
+            if (id != R.id.home)
+                analytics_home.setVisibility(GONE);
+            else
+                analytics_home.setVisibility(View.VISIBLE);
             ft.replace(R.id.content_frame, fragment);
             view.setVisibility(View.VISIBLE);
             ft.commit();
@@ -101,28 +111,79 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void init() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                slide.setVisibility(GONE);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                slide.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
 //        drawer.openDrawer(GravityCompat.START);
+        cancel = (Button) findViewById(R.id.cancel);
+        cancel.setOnClickListener(this);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        Button menu = (Button) findViewById(R.id.menu_button);
+        slide = (ImageButton) findViewById(R.id.slide);
         view = (FrameLayout) findViewById(R.id.content_frame);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        analytics_home.setVisibility(GONE);
+        analytics_home = (LinearLayout) findViewById(R.id.header_main);
         ft.replace(R.id.content_frame, new Home());
         view.setVisibility(View.VISIBLE);
         ft.commit();
-        analytics_home = (LinearLayout) findViewById(R.id.header_main);
-        menu.setOnClickListener(this);
+        fb = (ImageButton) findViewById(R.id.fb);
+        blog = (ImageButton) findViewById(R.id.blog);
+        twitter = (ImageButton) findViewById(R.id.twitter);
+        connect = (TextView) findViewById(R.id.connect);
+        connect.setOnClickListener(this);
+        slide.setOnClickListener(this);
+        fb.setOnClickListener(this);
+        blog.setOnClickListener(this);
+        twitter.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
+        LinearLayout social = (LinearLayout) findViewById(R.id.social_ll);
         switch (view.getId()){
-            case R.id.menu_button:
+            case R.id.connect:
+                social.setVisibility(View.VISIBLE);
+                break;
+            case R.id.slide:
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 drawer.openDrawer(GravityCompat.START);
                 break;
+            case R.id.cancel:
+                social.setVisibility(View.GONE);
+                break;
+            case R.id.fb:
+                openBrowser(fb_link);
+                break;
+            case R.id.twitter:
+                openBrowser(twitter_link);
+                break;
+            case R.id.blog:
+                openBrowser(blog_link);
+                break;
         }
+    }
+
+    void openBrowser(String text){
+
     }
 }
