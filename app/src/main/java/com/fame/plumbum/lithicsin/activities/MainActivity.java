@@ -12,15 +12,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 import com.fame.plumbum.lithicsin.R;
+import com.fame.plumbum.lithicsin.fragments.Home;
 import com.fame.plumbum.lithicsin.fragments.MyAccount;
 
 import static android.view.View.GONE;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
-    RelativeLayout analytics_home;
+    LinearLayout analytics_home;
     FrameLayout view;
 
     @Override
@@ -70,7 +71,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.my_account) {
+        if (id == R.id.home) {
+            fragment = new Home();
+        } else if (id == R.id.my_account) {
             fragment = new MyAccount();
         } else if (id == R.id.inventory) {
 
@@ -98,14 +101,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void init() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.openDrawer(GravityCompat.START);
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        drawer.openDrawer(GravityCompat.START);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         Button menu = (Button) findViewById(R.id.menu_button);
         view = (FrameLayout) findViewById(R.id.content_frame);
-        view.setVisibility(GONE);
-        analytics_home = (RelativeLayout) findViewById(R.id.analytics_home);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        analytics_home.setVisibility(GONE);
+        ft.replace(R.id.content_frame, new Home());
+        view.setVisibility(View.VISIBLE);
+        ft.commit();
+        analytics_home = (LinearLayout) findViewById(R.id.header_main);
         menu.setOnClickListener(this);
     }
 
