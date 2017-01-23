@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.fragments.Home;
 import com.fame.plumbum.lithicsin.fragments.MyAccount;
+import com.fame.plumbum.lithicsin.fragments.MyOrders;
 
 import static android.view.View.GONE;
 
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.inventory) {
 
         } else if (id == R.id.my_orders) {
-
+            fragment = new MyOrders();
         } else if (id == R.id.schedule_pickup) {
 
         } else if (id == R.id.settings) {
