@@ -28,15 +28,16 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
     private List<Orders> albumList;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView title, count;
-        public ImageView thumbnail, overflow;
+        public TextView product_name, price, status, order_number;
+        public ImageView thumbnail;
 
         public MyViewHolder(View view) {
             super(view);
-            title = (TextView) view.findViewById(R.id.order_id);
-            count = (TextView) view.findViewById(R.id.price);
-            thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
-            overflow = (ImageView) view.findViewById(R.id.overflow);
+            order_number = (TextView) view.findViewById(R.id.order_number);
+            product_name = (TextView) view.findViewById(R.id.product_name);
+            thumbnail = (ImageView) view.findViewById(R.id.product_image);
+            price = (TextView) view.findViewById(R.id.product_price);
+            status = (TextView) view.findViewById(R.id.order_status);
         }
     }
 
@@ -57,18 +58,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         Orders album = albumList.get(position);
-        holder.title.setText(album.getName());
-        holder.count.setText(album.getNumOfSongs()+"");
+        holder.product_name.setText(album.getName());
+        holder.price.setText(album.getPrice());
+        holder.status.setText(album.getStatus());
+        holder.order_number.setText(album.getOrder_id());
+
 
         // loading album cover using Glide library
         Glide.with(mContext).load(album.getThumbnail()).into(holder.thumbnail);
-
-        holder.overflow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showPopupMenu(holder.overflow);
-            }
-        });
     }
 
     /**

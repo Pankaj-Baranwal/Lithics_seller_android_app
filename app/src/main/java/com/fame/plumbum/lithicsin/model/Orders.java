@@ -8,31 +8,26 @@ public class Orders {
     private String order_id;
     private int price;
     private int thumbnail;
+    private String name;
+    private String status;
 
     public Orders() {
     }
 
-    public Orders(String order_id, int price, int thumbnail) {
+    public Orders(String order_id, int price, int thumbnail, String name, String status) {
         this.order_id = order_id;
         this.price = price;
         this.thumbnail = thumbnail;
+        this.name = name;
+        this.status = status;
     }
 
     public String getName() {
-        return order_id;
+        return name;
     }
 
-    public void setName(String order_id) {
-        this.order_id = order_id;
-    }
-
-    public int getNumOfSongs()
-    {
-        return price;
-    }
-
-    public void setNumOfSongs(int price) {
-        this.price = price;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getThumbnail() {
@@ -41,5 +36,29 @@ public class Orders {
 
     public void setThumbnail(int thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public String getOrder_id() {
+        return "#"+order_id;
+    }
+
+    public void setOrder_id(String order_id) {
+        this.order_id = order_id;
+    }
+
+    public String getPrice() {
+        return "Rs "+price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
