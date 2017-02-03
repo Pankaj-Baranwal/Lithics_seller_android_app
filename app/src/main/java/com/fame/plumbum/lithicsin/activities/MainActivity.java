@@ -26,11 +26,13 @@ import static android.view.View.GONE;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     LinearLayout analytics_home;
+    public LinearLayout my_account;
     FrameLayout view;
     TextView connect;
     ImageButton slide, fb, blog, twitter;
     Button cancel;
     String fb_link, blog_link, twitter_link;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +136,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+        /*
+         Main Address
+         Landmark
+         City
+         State
+         Pincode
+
+         */
 
 //        drawer.openDrawer(GravityCompat.START);
         cancel = (Button) findViewById(R.id.cancel);
@@ -144,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         view = (FrameLayout) findViewById(R.id.content_frame);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         analytics_home = (LinearLayout) findViewById(R.id.header_main);
+        my_account = (LinearLayout) findViewById(R.id.ll_my_account);
         ft.replace(R.id.content_frame, new Home());
         view.setVisibility(View.VISIBLE);
         ft.commit();
