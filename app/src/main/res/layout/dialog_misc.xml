@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/small_padding_horizontal"
+        android:layout_marginRight="@dimen/small_padding_horizontal"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="What are the social groups or communities or target groups associated with you?"
+            android:textColor="#000"
+            android:paddingTop="5dp"
+            />
+        <TextView
+            android:id="@+id/ans1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No Comments"
+            android:paddingLeft="@dimen/small_padding_horizontal"
+            android:paddingTop="@dimen/small_padding_vertical"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/small_padding_horizontal"
+        android:layout_marginRight="@dimen/small_padding_horizontal"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="What is the social cause that you or your organisation is working for?"
+            android:textColor="#000"
+            android:paddingTop="5dp"
+            />
+        <TextView
+            android:id="@+id/ans2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No Comments"
+            android:paddingLeft="@dimen/small_padding_horizontal"
+            android:paddingTop="@dimen/small_padding_vertical"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/small_padding_horizontal"
+        android:layout_marginRight="@dimen/small_padding_horizontal"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Do you want to avail our ‘FREE’ marketing services (blog, social media, SEO etc) for your products?"
+            android:textColor="#000"
+            android:paddingTop="5dp"
+            />
+        <TextView
+            android:id="@+id/ans3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No Comments"
+            android:paddingLeft="@dimen/small_padding_horizontal"
+            android:paddingTop="@dimen/small_padding_vertical"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/small_padding_horizontal"
+        android:layout_marginRight="@dimen/small_padding_horizontal"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Do you want to avail our ‘FREE’ product photography services?"
+            android:textColor="#000"
+            android:paddingTop="5dp"
+            />
+        <TextView
+            android:id="@+id/ans4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No Comments"
+            android:paddingLeft="@dimen/small_padding_horizontal"
+            android:paddingTop="@dimen/small_padding_vertical"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/small_padding_horizontal"
+        android:layout_marginRight="@dimen/small_padding_horizontal"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Do you want to use our ‘FREE’ mobile application services?"
+            android:textColor="#000"
+            android:paddingTop="5dp"
+            />
+        <TextView
+            android:id="@+id/ans5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No Comments"
+            android:paddingLeft="@dimen/small_padding_horizontal"
+            android:paddingTop="@dimen/small_padding_vertical"
+            />
+    </LinearLayout>
+</LinearLayout>

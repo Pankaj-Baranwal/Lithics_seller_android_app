@@ -10,4 +10,8 @@
     <string name="action_play_next">Play Next</string>
     <string name="backdrop_title">Current Orders</string>
     <string name="backdrop_subtitle">All your previous orders</string>
+    <string name="my_account">My Account</string>
+    <string name="registration">Registration</string>
+    <string name="inventory">Inventory</string>
+    <string name="date_format">EEE MMM dd HH:mm:ss yyyy</string>
 </resources>

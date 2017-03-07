@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.fame.plumbum.lithicsin.R;
@@ -36,13 +37,13 @@ public class MyOrders extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_my_account, container, false);
+        rootView = inflater.inflate(R.layout.fragment_my_orders, container, false);
 
         initCollapsingToolbar();
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.list_products);
 
         OrdersList = new ArrayList<>();
-        adapter = new OrderAdapter(getContext(), OrdersList);
+        adapter = new OrderAdapter(getContext(), OrdersList, "MyOrders");
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -67,6 +68,10 @@ public class MyOrders extends Fragment {
     private void initCollapsingToolbar() {
         final CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) rootView.findViewById(R.id.collapsing_toolbar);
+        TextView title = (TextView) rootView.findViewById(R.id.title_collapsable);
+        TextView subtitle = (TextView) rootView.findViewById(R.id.subtitle_collapsable);
+        title.setText("My Orders");
+        subtitle.setText("All your previous orders");
         collapsingToolbar.setTitle(" ");
         AppBarLayout appBarLayout = (AppBarLayout) rootView.findViewById(R.id.appbar);
         appBarLayout.setExpanded(true);
@@ -109,29 +114,29 @@ public class MyOrders extends Fragment {
                 R.drawable.album10,
                 R.drawable.album11};
 
-        Orders a = new Orders("1234567", 234, covers[0], "Product1", "CANCELLED");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[1], "Product1", "COMPLETE");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[2], "Product1", "PROCESSING");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[3], "Product1", "PENDING");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[4], "Product1", "COMPLETE");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[5], "Product1", "COMPLETE");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[6], "Product1", "COMPLETE");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[7], "Product1", "COMPLETE");
-        OrdersList.add(a);
+//        Orders a = new Orders("1234567", 234, covers[0], "Product1", "CANCELLED");
+//        OrdersList.add(a);
+//
+//        a = new Orders("1234567", 234, covers[1], "Product1", "COMPLETE");
+//        OrdersList.add(a);
+//
+//        a = new Orders("1234567", 234, covers[2], "Product1", "PROCESSING");
+//        OrdersList.add(a);
+//
+//        a = new Orders("1234567", 234, covers[3], "Product1", "PENDING");
+//        OrdersList.add(a);
+//
+//        a = new Orders("1234567", 234, covers[4], "Product1", "COMPLETE");
+//        OrdersList.add(a);
+//
+//        a = new Orders("1234567", 234, covers[5], "Product1", "COMPLETE");
+//        OrdersList.add(a);
+//
+//        a = new Orders("1234567", 234, covers[6], "Product1", "COMPLETE");
+//        OrdersList.add(a);
+//
+//        a = new Orders("1234567", 234, covers[7], "Product1", "COMPLETE");
+//        OrdersList.add(a);
 
         adapter.notifyDataSetChanged();
     }

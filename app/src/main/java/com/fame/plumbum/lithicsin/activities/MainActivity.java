@@ -18,20 +18,22 @@ import android.widget.TextView;
 
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.fragments.Home;
+import com.fame.plumbum.lithicsin.fragments.Inventory;
 import com.fame.plumbum.lithicsin.fragments.MyAccount;
 import com.fame.plumbum.lithicsin.fragments.MyOrders;
+import com.fame.plumbum.lithicsin.fragments.SchedulePickup;
 
 import static android.view.View.GONE;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     LinearLayout analytics_home;
-    public LinearLayout my_account;
     FrameLayout view;
     TextView connect;
     ImageButton slide, fb, blog, twitter;
     Button cancel;
     String fb_link, blog_link, twitter_link;
+    boolean onHome = true, socialClicked = false;
 
 
     @Override
@@ -46,6 +48,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (!onHome){
+            Fragment fragment = new Home();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            analytics_home.setVisibility(GONE);
+            ft.replace(R.id.content_frame, fragment);
+            ft.commit();
         } else {
             super.onBackPressed();
         }
@@ -86,11 +94,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.my_account) {
             fragment = new MyAccount();
         } else if (id == R.id.inventory) {
-
+            fragment = new Inventory();
         } else if (id == R.id.my_orders) {
             fragment = new MyOrders();
         } else if (id == R.id.schedule_pickup) {
-
+            fragment = new SchedulePickup();
         } else if (id == R.id.settings) {
 
         } else if (id == R.id.nav_email) {
@@ -154,7 +162,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         view = (FrameLayout) findViewById(R.id.content_frame);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         analytics_home = (LinearLayout) findViewById(R.id.header_main);
-        my_account = (LinearLayout) findViewById(R.id.ll_my_account);
         ft.replace(R.id.content_frame, new Home());
         view.setVisibility(View.VISIBLE);
         ft.commit();
@@ -172,9 +179,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onClick(View view) {
         LinearLayout social = (LinearLayout) findViewById(R.id.social_ll);
+        if (socialClicked){
+
+        }
         switch (view.getId()){
             case R.id.connect:
                 social.setVisibility(View.VISIBLE);
+                socialClicked = true;
                 break;
             case R.id.slide:
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

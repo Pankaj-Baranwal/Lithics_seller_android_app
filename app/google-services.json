@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "614863040454",
+    "firebase_url": "https://lithics-pankaj.firebaseio.com",
+    "project_id": "lithics-pankaj",
+    "storage_bucket": "lithics-pankaj.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614863040454:android:6a8704ddf4ea25ad",
+        "android_client_info": {
+          "package_name": "com.fame.plumbum.lithicsin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "614863040454-4ifm39qqrlt6sa1o1us5taj0988uf7sh.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "614863040454-39pvie9d0ndlik149875gptbuijv24j0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPK-CVvHyfYg42wsrRq8J9u2nPw5hmFD4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

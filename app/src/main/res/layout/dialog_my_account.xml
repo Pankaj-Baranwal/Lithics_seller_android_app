@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="400dp"
+    android:gravity="center"
     android:background="#fff"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
     >
     <TextView
         android:id="@+id/heading_my_account_dialog"
@@ -16,13 +18,25 @@
         android:textSize="20sp"
         android:textColor="#fff"
         android:background="@color/colorPrimary"
+        android:layout_alignParentTop="true"
         />
+    <ScrollView
+        android:layout_below="@+id/heading_my_account_dialog"
+        android:layout_above="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
     <LinearLayout
         android:id="@+id/ll_dialog_contact"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
+
         >
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/name_organization"
@@ -197,7 +211,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         >
         <LinearLayout
             android:orientation="vertical"
@@ -476,9 +490,16 @@
                 />
         </LinearLayout>
     </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
     <LinearLayout
+        android:id="@+id/buttons"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_alignParentBottom="true"
+        >
         <Button
             android:id="@+id/update"
             android:layout_width="match_parent"
@@ -488,7 +509,6 @@
             android:text="UPDATE"
             android:textColor="#fff"
             android:textSize="22sp"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/small_padding_horizontal"
             android:layout_marginRight="@dimen/small_padding_horizontal"
             />
@@ -502,11 +522,10 @@
             android:text="CANCEL"
             android:textColor="#fff"
             android:textSize="22sp"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/small_padding_horizontal"
             android:layout_marginRight="@dimen/small_padding_horizontal"
             />
     </LinearLayout>
 
 
-</LinearLayout>
+</RelativeLayout>

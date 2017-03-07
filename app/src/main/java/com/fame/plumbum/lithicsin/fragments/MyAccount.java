@@ -21,7 +21,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.fame.plumbum.lithicsin.R;
-import com.fame.plumbum.lithicsin.activities.MainActivity;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import java.util.Arrays;
@@ -34,7 +33,6 @@ import java.util.List;
 public class MyAccount extends Fragment {
     View rootView;
     RelativeLayout contact, official, misc;
-    LinearLayout dialog_contact, dialog_official, dialog_misc;
 
 
     @Nullable
@@ -57,47 +55,43 @@ public class MyAccount extends Fragment {
         official = (RelativeLayout) rootView.findViewById(R.id.rl_official_details);
         contact = (RelativeLayout) rootView.findViewById(R.id.rl_contact_info);
         misc = (RelativeLayout) rootView.findViewById(R.id.rl_miscellaneous);
+        final LinearLayout ll_dialog_contact = (LinearLayout) getActivity().findViewById(R.id.ll_dialog_contact);
+        final LinearLayout ll_dialog_official = (LinearLayout) getActivity().findViewById(R.id.ll_dialog_official);
+        final LinearLayout ll_dialog_misc = (LinearLayout) getActivity().findViewById(R.id.ll_dialog_misc);
         contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LinearLayout ll_dialog_official = (LinearLayout) rootView.findViewById(R.id.ll_dialog_contact);
-                ll_dialog_official.setVisibility(View.VISIBLE);
-                ((MainActivity)getActivity()).my_account.setVisibility(View.VISIBLE);
+
                 useDialogContact();
             }
         });
         official.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LinearLayout ll_dialog_official = (LinearLayout) rootView.findViewById(R.id.ll_dialog_official);
-                ll_dialog_official.setVisibility(View.VISIBLE);
-                ((MainActivity)getActivity()).my_account.setVisibility(View.VISIBLE);
+
                 useDialogOfficial();
             }
         });
         misc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LinearLayout ll_dialog_official = (LinearLayout) rootView.findViewById(R.id.ll_dialog_misc);
-                ll_dialog_official.setVisibility(View.VISIBLE);
-                ((MainActivity)getActivity()).my_account.setVisibility(View.VISIBLE);
+
                 useDialogMisc();
             }
         });
     }
 
     private void useDialogOfficial() {
-        MaterialEditText tin = (MaterialEditText) rootView.findViewById(R.id.tin);
-        MaterialEditText cst = (MaterialEditText) rootView.findViewById(R.id.cst);
-        Button permanent = (Button) rootView.findViewById(R.id.permanent_address);
-        final Button pickup = (Button) rootView.findViewById(R.id.pickup_address);
-        Button categories = (Button) rootView.findViewById(R.id.product_categories);
-        Button update = (Button) rootView.findViewById(R.id.update);
-        Button cancel = (Button) rootView.findViewById(R.id.cancel);
-        CheckBox pickup_checkbox = (CheckBox) rootView.findViewById(R.id.checkbox_pickup);
-        TextView heading = (TextView) rootView.findViewById(R.id.heading_my_account_dialog);
-        Spinner state_of_operation = (Spinner) rootView.findViewById(R.id.state_of_operation);
-        heading.setText("Official Details");
+        MaterialEditText tin = (MaterialEditText) getActivity().findViewById(R.id.tin);
+        MaterialEditText cst = (MaterialEditText) getActivity().findViewById(R.id.cst);
+        Button permanent = (Button) getActivity().findViewById(R.id.permanent_address);
+        final Button pickup = (Button) getActivity().findViewById(R.id.pickup_address);
+        Button categories = (Button) getActivity().findViewById(R.id.product_categories);
+
+        CheckBox pickup_checkbox = (CheckBox) getActivity().findViewById(R.id.checkbox_pickup);
+        TextView heading = (TextView) getActivity().findViewById(R.id.heading_my_account_dialog);
+        Spinner state_of_operation = (Spinner) getActivity().findViewById(R.id.state_of_operation);
+
         pickup_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -110,19 +104,7 @@ public class MyAccount extends Fragment {
                 }
             }
         });
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity)getActivity()).my_account.setVisibility(View.GONE);
-            }
-        });
-        update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: Add data in database
-                ((MainActivity)getActivity()).my_account.setVisibility(View.GONE);
-            }
-        });
+
         permanent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -161,28 +143,14 @@ public class MyAccount extends Fragment {
     }
 
     private void useDialogContact() {
-        MaterialEditText name_of_organization= (MaterialEditText) rootView.findViewById(R.id.name_organization);
-        MaterialEditText email_id = (MaterialEditText) rootView.findViewById(R.id.email_id);
-        MaterialEditText contact_name = (MaterialEditText) rootView.findViewById(R.id.contact_name);
-        MaterialEditText mobile_no = (MaterialEditText) rootView.findViewById(R.id.mobile_no);
-        Button update = (Button) rootView.findViewById(R.id.update);
-        Button cancel = (Button) rootView.findViewById(R.id.cancel);
-        TextView heading = (TextView) rootView.findViewById(R.id.heading_my_account_dialog);
-        Spinner state_of_operation = (Spinner) rootView.findViewById(R.id.state_of_operation);
-        heading.setText("Contact Details");
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity)getActivity()).my_account.setVisibility(View.GONE);
-            }
-        });
-        update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: Add data in database
-                ((MainActivity)getActivity()).my_account.setVisibility(View.GONE);
-            }
-        });
+        MaterialEditText name_of_organization= (MaterialEditText) getActivity().findViewById(R.id.name_organization);
+        MaterialEditText email_id = (MaterialEditText) getActivity().findViewById(R.id.email_id);
+        MaterialEditText contact_name = (MaterialEditText) getActivity().findViewById(R.id.contact_name);
+        MaterialEditText mobile_no = (MaterialEditText) getActivity().findViewById(R.id.mobile_no);
+        TextView heading = (TextView) getActivity().findViewById(R.id.heading_my_account_dialog);
+        Spinner state_of_operation = (Spinner) getActivity().findViewById(R.id.state_of_operation);
+
+
         List<String> states = Arrays.asList("Choose your state", "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, states);
         // Specify the layout to use when the list of choices appears
@@ -203,23 +171,9 @@ public class MyAccount extends Fragment {
     }
 
     private void useDialogMisc() {
-        Button update = (Button) rootView.findViewById(R.id.update);
-        Button cancel = (Button) rootView.findViewById(R.id.cancel);
-        TextView heading = (TextView) rootView.findViewById(R.id.heading_my_account_dialog);
-        heading.setText("Miscellaneous Questions");
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity)getActivity()).my_account.setVisibility(View.GONE);
-            }
-        });
-        update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: Add data in database
-                ((MainActivity)getActivity()).my_account.setVisibility(View.GONE);
-            }
-        });
+
+
+
     }
 
     /**
@@ -229,6 +183,11 @@ public class MyAccount extends Fragment {
     private void initCollapsingToolbar() {
         final CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) rootView.findViewById(R.id.collapsing_toolbar);
+
+        TextView title = (TextView) rootView.findViewById(R.id.title_collapsable);
+        TextView subtitle = (TextView) rootView.findViewById(R.id.subtitle_collapsable);
+        title.setText("My Account");
+        subtitle.setText("Manage your account here");
         collapsingToolbar.setTitle(" ");
         AppBarLayout appBarLayout = (AppBarLayout) rootView.findViewById(R.id.appbar);
         appBarLayout.setExpanded(true);

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/ll_dialog_edittext"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <EditText
+        android:id="@+id/dialog_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:paddingLeft="@dimen/small_padding_horizontal"
+        android:paddingRight="@dimen/small_padding_horizontal"
+        android:layout_marginLeft="@dimen/small_padding_horizontal"
+        android:layout_marginRight="@dimen/small_padding_horizontal"
+        android:layout_marginTop="@dimen/small_padding_vertical"
+        />
+    </LinearLayout>

@@ -6,21 +6,22 @@ package com.fame.plumbum.lithicsin.model;
 
 public class Orders {
     private String order_id;
-    private int price;
-    private int thumbnail;
+    private double price;
+    private String thumbnail;
     private String name;
     private String status;
 
+
     public Orders() {
     }
-
-    public Orders(String order_id, int price, int thumbnail, String name, String status) {
-        this.order_id = order_id;
-        this.price = price;
-        this.thumbnail = thumbnail;
-        this.name = name;
-        this.status = status;
-    }
+//
+//    public Orders(String order_id, double price, String thumbnail, String name, String status) {
+//        this.order_id = order_id;
+//        this.price = price;
+//        this.thumbnail = thumbnail;
+//        this.name = name;
+//        this.status = status;
+//    }
 
     public String getName() {
         return name;
@@ -30,11 +31,11 @@ public class Orders {
         this.name = name;
     }
 
-    public int getThumbnail() {
+    public String getThumbnail() {
         return thumbnail;
     }
 
-    public void setThumbnail(int thumbnail) {
+    public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
 
@@ -47,10 +48,10 @@ public class Orders {
     }
 
     public String getPrice() {
-        return "Rs "+price;
+        return "Rs " + price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 

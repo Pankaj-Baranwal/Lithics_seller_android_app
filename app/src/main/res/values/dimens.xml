@@ -23,4 +23,12 @@
     <dimen name="ic_album_overflow_width">20dp</dimen>
     <dimen name="ic_album_overflow_height">30dp</dimen>
     <dimen name="ic_album_overflow_margin_top">10dp</dimen>
+
+
+    <dimen name="margin">8dp</dimen>
+
+    <dimen name="header_text_size">20sp</dimen>
+    <dimen name="title_text_size">18sp</dimen>
+    <dimen name="button_text_size">16sp</dimen>
+    <dimen name="sample_text_size">12sp</dimen>
 </resources>
