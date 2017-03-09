@@ -8,9 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.transition.ChangeBounds;
-import android.support.transition.Transition;
-import android.support.transition.TransitionSet;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,7 +15,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -47,6 +43,7 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,13 +59,14 @@ import static com.fame.plumbum.lithicsin.utils.Constants.BASE_URL_DEFAULT;
 
 public class Registration extends AppCompatActivity {
     SharedPreferences sp;
+    SharedPreferences.Editor editor;
     String token;
     RelativeLayout contact, official, misc;
     RecyclerView misc_list;
     RecyclerView.Adapter adapter;
     List<DataSetMiscQues> dataList = new ArrayList<>();
     Button submit;
-    String permanent_address_value , pickup_address_value, categories_value  ;
+    String permanent_address_value , pickup_address_value, categories_value = "default_value" ;
 
 
     @Override
@@ -166,28 +164,40 @@ public class Registration extends AppCompatActivity {
         View mView = layoutInflaterAndroid.inflate(R.layout.dialog_official, null);
         final MaterialEditText vat = (MaterialEditText) mView.findViewById(R.id.tin);
         final MaterialEditText cst = (MaterialEditText) mView.findViewById(R.id.cst);
-        LinearLayout rll_enclosed = (LinearLayout) mView.findViewById(R.id.ll_wrapper);
         final Button permanent = (Button) mView.findViewById(R.id.permanent_address);
         final Button pickup = (Button) mView.findViewById(R.id.pickup_address);
         final Button categories = (Button) mView.findViewById(R.id.product_categories);
-        ViewGroup mSceneRoot;
-        TransitionSet mStaggeredTransition;
-        mStaggeredTransition = new TransitionSet();
-        Transition first = new ChangeBounds();
-        first.addTarget(rll_enclosed);
+//        final Scene scene1, scene2;
+//        final Transition transition;
+//        final boolean[] start = new boolean[1];
+        final LinearLayout permanent_wrapper = (LinearLayout) mView.findViewById(R.id.ll_permanent_wrapper);
+        final LinearLayout pickup_wrapper = (LinearLayout) mView.findViewById(R.id.ll_pickup_wrapper);
+
+        final MaterialEditText street1 = (MaterialEditText) mView.findViewById(R.id.street1);
+        final MaterialEditText street2 = (MaterialEditText) mView.findViewById(R.id.street2);
+        final MaterialEditText city = (MaterialEditText) mView.findViewById(R.id.city);
+        final MaterialEditText pincode = (MaterialEditText) mView.findViewById(R.id.pincode);
+
+        final MaterialEditText street1_pickup = (MaterialEditText) mView.findViewById(R.id.street1_pickup);
+        final MaterialEditText street2_pickup = (MaterialEditText) mView.findViewById(R.id.street2_pickup);
+        final MaterialEditText city_pickup = (MaterialEditText) mView.findViewById(R.id.city_pickup);
+        final MaterialEditText pincode_pickup= (MaterialEditText) mView.findViewById(R.id.pincode_pickup);
+
         final CheckBox pickup_checkbox = (CheckBox) mView.findViewById(R.id.checkbox_pickup);
-        List<String> states = Arrays.asList("Choose your state", "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal");
+        final List<String> states = Arrays.asList("Choose your state", "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal");
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, states);
         // Specify the layout to use when the list of choices appears
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         final Spinner state_of_operation = (Spinner) mView.findViewById(R.id.state_of_operation);
+        state_of_operation.setAdapter(adapter1);
         pickup_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b){
                     pickup.setClickable(false);
                     pickup.setBackgroundColor(0x886db096);
+                    pickup_wrapper.setVisibility(View.GONE);
                 }else{
                     pickup.setClickable(true);
                     pickup.setBackgroundColor(0xff6db096);
@@ -198,13 +208,23 @@ public class Registration extends AppCompatActivity {
         permanent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (permanent_wrapper.getVisibility()==View.GONE) {
+                    permanent_wrapper.setVisibility(View.VISIBLE);
+                    street1.requestFocus();
+                }
+                else
+                    permanent_wrapper.setVisibility(View.GONE);
             }
         });
         pickup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (pickup_wrapper.getVisibility()==View.GONE) {
+                    pickup_wrapper.setVisibility(View.VISIBLE);
+                    street2.requestFocus();
+                }
+                else
+                    pickup_wrapper.setVisibility(View.GONE);
             }
         });
         categories.setOnClickListener(new View.OnClickListener() {
@@ -220,6 +240,8 @@ public class Registration extends AppCompatActivity {
                 .setCancelable(true)
                 .setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogBox, int id) {
+                        permanent_address_value = street1 + "\n" + street2 + "\n" + city + "\n" + pincode;
+                        pickup_address_value = street1_pickup + "\n" + street2_pickup + "\n" + city_pickup + "\n" + pincode_pickup;
                         StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "saveOfficialDetails.php",
                                 new Response.Listener<String>() {
                                     @Override
@@ -239,7 +261,7 @@ public class Registration extends AppCompatActivity {
                                 params.put("cst", cst.getText().toString()+ "");
                                 params.put("permanent", permanent_address_value + "");
                                 params.put("pickup", pickup_address_value + "");
-                                params.put("state_operation", pickup_address_value + "");
+                                params.put("state_operation", states.get(state_of_operation.getSelectedItemPosition()) + "");
                                 params.put("categories", categories_value + "");
                                 return params;
                             }
@@ -279,7 +301,21 @@ public class Registration extends AppCompatActivity {
                                 new Response.Listener<String>() {
                                     @Override
                                     public void onResponse(String response) {
-                                        Toast.makeText(Registration.this, "Updated", Toast.LENGTH_SHORT).show();
+                                        Log.e("REPONSE_CONTACT", response);
+                                        if (response.contains("exists")){
+                                            Toast.makeText(Registration.this, "Already registered number!", Toast.LENGTH_SHORT).show();
+                                        }else if (response.contains("id")){
+                                            try {
+                                                JSONArray resp = new JSONArray(response);
+                                                JSONObject jo = resp.getJSONObject(0);
+                                                editor = sp.edit();
+                                                editor.putString("id", jo.getString("id"));
+                                                editor.apply();
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+
                                     }
                                 }, new Response.ErrorListener() {
                             @Override
