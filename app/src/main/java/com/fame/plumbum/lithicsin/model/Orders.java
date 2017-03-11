@@ -14,14 +14,14 @@ public class Orders {
 
     public Orders() {
     }
-//
-//    public Orders(String order_id, double price, String thumbnail, String name, String status) {
-//        this.order_id = order_id;
-//        this.price = price;
-//        this.thumbnail = thumbnail;
-//        this.name = name;
-//        this.status = status;
-//    }
+
+    public Orders(String order_id, double price, String thumbnail, String name, String status) {
+        this.order_id = order_id;
+        this.price = price;
+        this.thumbnail = thumbnail;
+        this.name = name;
+        this.status = status;
+    }
 
     public String getName() {
         return name;

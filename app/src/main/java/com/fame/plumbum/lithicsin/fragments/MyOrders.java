@@ -33,6 +33,7 @@ public class MyOrders extends Fragment {
     private OrderAdapter adapter;
     private List<Orders> OrdersList;
     View rootView;
+    private RecyclerView recyclerView;
 
     @Nullable
     @Override
@@ -40,7 +41,7 @@ public class MyOrders extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_my_orders, container, false);
 
         initCollapsingToolbar();
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.list_products);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.list_products);
 
         OrdersList = new ArrayList<>();
         adapter = new OrderAdapter(getContext(), OrdersList, "MyOrders");
@@ -114,29 +115,29 @@ public class MyOrders extends Fragment {
                 R.drawable.album10,
                 R.drawable.album11};
 
-//        Orders a = new Orders("1234567", 234, covers[0], "Product1", "CANCELLED");
-//        OrdersList.add(a);
-//
-//        a = new Orders("1234567", 234, covers[1], "Product1", "COMPLETE");
-//        OrdersList.add(a);
-//
-//        a = new Orders("1234567", 234, covers[2], "Product1", "PROCESSING");
-//        OrdersList.add(a);
-//
-//        a = new Orders("1234567", 234, covers[3], "Product1", "PENDING");
-//        OrdersList.add(a);
-//
-//        a = new Orders("1234567", 234, covers[4], "Product1", "COMPLETE");
-//        OrdersList.add(a);
-//
-//        a = new Orders("1234567", 234, covers[5], "Product1", "COMPLETE");
-//        OrdersList.add(a);
-//
-//        a = new Orders("1234567", 234, covers[6], "Product1", "COMPLETE");
-//        OrdersList.add(a);
-//
-//        a = new Orders("1234567", 234, covers[7], "Product1", "COMPLETE");
-//        OrdersList.add(a);
+        Orders a = new Orders("1234567", 234, covers[0]+"", "Product1", "CANCELLED");
+        OrdersList.add(a);
+
+        a = new Orders("1234567", 234, covers[1]+"", "Product1", "COMPLETE");
+        OrdersList.add(a);
+
+        a = new Orders("1234567", 234, covers[2]+"", "Product1", "PROCESSING");
+        OrdersList.add(a);
+
+        a = new Orders("1234567", 234, covers[3]+"", "Product1", "PENDING");
+        OrdersList.add(a);
+
+        a = new Orders("1234567", 234, covers[4]+"", "Product1", "COMPLETE");
+        OrdersList.add(a);
+
+        a = new Orders("1234567", 234, covers[5]+"", "Product1", "COMPLETE");
+        OrdersList.add(a);
+
+        a = new Orders("1234567", 234, covers[6]+"", "Product1", "COMPLETE");
+        OrdersList.add(a);
+
+        a = new Orders("1234567", 234, covers[7]+"", "Product1", "COMPLETE");
+        OrdersList.add(a);
 
         adapter.notifyDataSetChanged();
     }

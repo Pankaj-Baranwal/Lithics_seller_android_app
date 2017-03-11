@@ -1,15 +1,19 @@
 package com.fame.plumbum.lithicsin.fragments;
 
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,9 +50,9 @@ import static com.fame.plumbum.lithicsin.utils.Constants.BASE_URL_DEFAULT;
 
 public class Inventory extends Fragment{
     View rootView;
-    RecyclerView list_orders;
-    RecyclerView.Adapter adapter;
-    List<Orders> dataList = new ArrayList<>();
+    private RecyclerView list_orders;
+    private OrderAdapter adapter;
+    private List<Orders> dataList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -67,9 +71,11 @@ public class Inventory extends Fragment{
 
     private void init() {
         list_orders = (RecyclerView) rootView.findViewById(R.id.list_products);
-        adapter = new OrderAdapter(getActivity(), dataList, "0");
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        adapter = new OrderAdapter(getContext(), dataList, "0");
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
         list_orders.setLayoutManager(mLayoutManager);
+        list_orders.addItemDecoration(new Inventory.GridSpacingItemDecoration(1, dpToPx(10), true));
+        list_orders.setItemAnimator(new DefaultItemAnimator());
         list_orders.setAdapter(adapter);
         sendRequest(BASE_URL_DEFAULT + "getInventory.php");
     }
@@ -82,10 +88,13 @@ public class Inventory extends Fragment{
                         try {
 //                            Log.e("Last Orders", response);
                             JSONArray jA = new JSONArray(response);
-                            String entity_id = jA.getJSONObject(0).getString("entity_id");
                             int i = 0;
+                            Log.e("JALength", jA.length()+"");
                             while (i < jA.length()) {
+                                String entity_id = jA.getJSONObject(i).getString("entity_id");
                                 Orders order = new Orders();
+                                order.setOrder_id(jA.getJSONObject(i).getString("sku"));
+                                order.setThumbnail(R.drawable.bag1 + "");
                                 while (jA.getJSONObject(i).getString("entity_id").contentEquals(entity_id)) {
                                     String attribb = jA.getJSONObject(i).getString("attribute_id");
                                     Log.e("Attribute", jA.getJSONObject(i).getString("attribute_id"));
@@ -94,21 +103,24 @@ public class Inventory extends Fragment{
                                         order.setName(jA.getJSONObject(i).getString("value"));
                                     }
                                         else if (attribb.contentEquals("86")) {
+                                        Log.e("TAG", jA.getJSONObject(i).getString("value"));
                                             order.setThumbnail(jA.getJSONObject(i).getString("value"));
                                         }else if (attribb.contentEquals("75")) {
+                                        Log.e("TAG", jA.getJSONObject(i).getString("value"));
                                             order.setPrice(Double.parseDouble(jA.getJSONObject(i).getString("value")));
                                         }
-                                    order.setOrder_id(jA.getJSONObject(i).getString("sku"));
                                     i++;
+                                    if (i >= jA.length()) break;
                                 }
+                                if (i >= jA.length()) break;
                                 Log.e("VALUE OF I", i+"");
                                 dataList.add(order);
-                                entity_id = jA.getJSONObject(i).getString("entity_id");
 //                                break;
                             }
+                            Log.e("SIZE", dataList.size()+"");
                             adapter.notifyDataSetChanged();
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            Log.e("ERROR", e.getMessage());
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -205,5 +217,51 @@ public class Inventory extends Fragment{
                 }
             }
         });
+    }
+
+    /**
+     * RecyclerView item decoration - give equal margin around grid item
+     */
+    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+
+        private int spanCount;
+        private int spacing;
+        private boolean includeEdge;
+
+        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
+            this.spanCount = spanCount;
+            this.spacing = spacing;
+            this.includeEdge = includeEdge;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            int position = parent.getChildAdapterPosition(view); // item position
+            int column = position % spanCount; // item column
+
+            if (includeEdge) {
+                outRect.left = spacing - column * spacing / spanCount; // spacing - column * ((1f / spanCount) * spacing)
+                outRect.right = (column + 1) * spacing / spanCount; // (column + 1) * ((1f / spanCount) * spacing)
+
+                if (position < spanCount) { // top edge
+                    outRect.top = spacing;
+                }
+                outRect.bottom = spacing; // item bottom
+            } else {
+                outRect.left = column * spacing / spanCount; // column * ((1f / spanCount) * spacing)
+                outRect.right = spacing - (column + 1) * spacing / spanCount; // spacing - (column + 1) * ((1f /    spanCount) * spacing)
+                if (position >= spanCount) {
+                    outRect.top = spacing; // item top
+                }
+            }
+        }
+    }
+
+    /**
+     * Converting dp to pixel
+     */
+    private int dpToPx(int dp) {
+        Resources r = getResources();
+        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 }
