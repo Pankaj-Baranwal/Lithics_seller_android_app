@@ -352,7 +352,7 @@ public class Registration extends AppCompatActivity {
 
     private void useDialogMisc() {
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(this);
-        View mView = layoutInflaterAndroid.inflate(R.layout.dialog_contact, null);
+        View mView = layoutInflaterAndroid.inflate(R.layout.dialog_misc, null);
 
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(this);
         alertDialogBuilderUserInput.setView(mView);
