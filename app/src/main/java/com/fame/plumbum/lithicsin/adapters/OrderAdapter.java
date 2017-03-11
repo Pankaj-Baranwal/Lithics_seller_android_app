@@ -3,7 +3,6 @@ package com.fame.plumbum.lithicsin.adapters;
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,6 +16,7 @@ import android.widget.Toast;
 
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.model.Orders;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -100,8 +100,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
                 holder.order_number.setText(album.getOrder_id());
                 holder.load_more.setVisibility(GONE);
                 holder.rl_orders.setVisibility(View.VISIBLE);
-                Log.e("TAG", "www.lithics.in/media/catalog/product"+albumList.get(position).getThumbnail());
-//                Picasso.with(mContext).load("www.lithics.in/media/catalog/product"+albumList.get(position).getThumbnail()).resize(256, 256).into(holder.thumbnail);
+                Picasso.with(mContext).load("http://www.lithics.in/media/catalog/product"+albumList.get(position).getThumbnail()).resize(120, 120).into(holder.thumbnail);
                 break;
             case Footer:
                 holder.load_more.setVisibility(View.VISIBLE);
