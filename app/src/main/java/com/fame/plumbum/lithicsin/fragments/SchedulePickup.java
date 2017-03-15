@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.adapters.OrderAdapter;
+import com.fame.plumbum.lithicsin.interfaces.Load_more;
 import com.fame.plumbum.lithicsin.model.Orders;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import java.util.List;
  * Created by pankaj on 17/1/17.
  */
 
-public class SchedulePickup extends Fragment {
+public class SchedulePickup extends Fragment implements Load_more {
     private OrderAdapter adapter;
     private List<Orders> OrdersList;
     View rootView;
@@ -43,7 +44,7 @@ public class SchedulePickup extends Fragment {
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
 
         OrdersList = new ArrayList<>();
-        adapter = new OrderAdapter(getContext(), OrdersList, "Pickup");
+        adapter = new OrderAdapter(getContext(), OrdersList, "Pickup", this);
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -139,6 +140,11 @@ public class SchedulePickup extends Fragment {
 //        OrdersList.add(a);
 //
 //        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onInterfaceClick() {
+
     }
 
     /**

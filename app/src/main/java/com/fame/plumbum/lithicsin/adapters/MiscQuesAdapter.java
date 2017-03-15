@@ -1,6 +1,5 @@
 package com.fame.plumbum.lithicsin.adapters;
 
-import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,6 @@ import java.util.List;
 
 public class MiscQuesAdapter extends RecyclerView.Adapter<MiscQuesAdapter.ViewHolder> {
 
-    private Activity activity;
     private List<DataSetMiscQues> DataList;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -32,8 +30,7 @@ public class MiscQuesAdapter extends RecyclerView.Adapter<MiscQuesAdapter.ViewHo
         }
     }
 
-    public MiscQuesAdapter(Activity activity, List<DataSetMiscQues> dataitem) {
-        this.activity = activity;
+    public MiscQuesAdapter(List<DataSetMiscQues> dataitem) {
         this.DataList = dataitem;
     }
 

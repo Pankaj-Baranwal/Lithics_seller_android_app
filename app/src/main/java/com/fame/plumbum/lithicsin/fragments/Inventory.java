@@ -29,15 +29,13 @@ import com.bumptech.glide.Glide;
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.Singleton;
 import com.fame.plumbum.lithicsin.adapters.OrderAdapter;
+import com.fame.plumbum.lithicsin.interfaces.Load_more;
 import com.fame.plumbum.lithicsin.model.Orders;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +46,12 @@ import static com.fame.plumbum.lithicsin.utils.Constants.BASE_URL_DEFAULT;
  * Created by pankaj on 17/1/17.
  */
 
-public class Inventory extends Fragment{
+public class Inventory extends Fragment implements Load_more {
+
     View rootView;
-    private RecyclerView list_orders;
     private OrderAdapter adapter;
     private List<Orders> dataList = new ArrayList<>();
+    int count = 10, page = 0;
 
     @Nullable
     @Override
@@ -70,8 +69,8 @@ public class Inventory extends Fragment{
     }
 
     private void init() {
-        list_orders = (RecyclerView) rootView.findViewById(R.id.list_products);
-        adapter = new OrderAdapter(getContext(), dataList, "0");
+        RecyclerView list_orders = (RecyclerView) rootView.findViewById(R.id.list_products);
+        adapter = new OrderAdapter(getContext(), dataList, "Inventory", this);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
         list_orders.setLayoutManager(mLayoutManager);
         list_orders.addItemDecoration(new Inventory.GridSpacingItemDecoration(1, dpToPx(10), true));
@@ -88,36 +87,9 @@ public class Inventory extends Fragment{
                         try {
 //                            Log.e("Last Orders", response);
                             JSONArray jA = new JSONArray(response);
-                            int i = 0;
-                            Log.e("JALength", jA.length()+"");
-                            while (i < jA.length()) {
-                                String entity_id = jA.getJSONObject(i).getString("entity_id");
-                                Orders order = new Orders();
-                                order.setOrder_id(jA.getJSONObject(i).getString("sku"));
-                                order.setThumbnail(R.drawable.bag1 + "");
-                                while (jA.getJSONObject(i).getString("entity_id").contentEquals(entity_id)) {
-                                    String attribb = jA.getJSONObject(i).getString("attribute_id");
-                                    Log.e("Attribute", jA.getJSONObject(i).getString("attribute_id"));
-                                    if (attribb.contentEquals("71")) {
-                                        Log.e("TAG", jA.getJSONObject(i).getString("value"));
-                                        order.setName(jA.getJSONObject(i).getString("value"));
-                                    }
-                                        else if (attribb.contentEquals("86")) {
-                                        Log.e("TAG", jA.getJSONObject(i).getString("value"));
-                                            order.setThumbnail(jA.getJSONObject(i).getString("value"));
-                                        }else if (attribb.contentEquals("75")) {
-                                        Log.e("TAG", jA.getJSONObject(i).getString("value"));
-                                            order.setPrice(Double.parseDouble(jA.getJSONObject(i).getString("value")));
-                                        }
-                                    i++;
-                                    if (i >= jA.length()) break;
-                                }
-                                if (i >= jA.length()) break;
-                                Log.e("VALUE OF I", i+"");
-                                dataList.add(order);
-//                                break;
+                            for (int i =0; i<jA.length(); i++){
+                                dataList.add(new Orders(jA.getJSONObject(i).getString("sku"), Double.parseDouble(jA.getJSONObject(i).getString("V3")), jA.getJSONObject(i).getString("V1"), jA.getJSONObject(i).getString("V2"), Double.parseDouble(jA.getJSONObject(i).getString("qty"))+" pcs"));
                             }
-                            Log.e("SIZE", dataList.size()+"");
                             adapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             Log.e("ERROR", e.getMessage());
@@ -133,51 +105,11 @@ public class Inventory extends Fragment{
                 Map<String, String> params = new HashMap<String, String>();
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
                 params.put("seller_id", sp.getString("seller_id", "24"));
-                params.put("count", "20");
-                params.put("page", "0");
+                params.put("count", count+"");
+                params.put("page", page+"");
                 return params;
             }};
         Singleton.getInstance().addToRequestQueue(stringRequest);
-    }
-
-    private JSONArray sortJSONArray(String response) {
-        JSONArray jsonArr = null;
-        try {
-            jsonArr = new JSONArray(response);
-            JSONArray sortedJsonArray = new JSONArray();
-
-            List<JSONObject> jsonValues = new ArrayList<JSONObject>();
-            for (int i = 0; i < jsonArr.length(); i++) {
-                jsonValues.add(jsonArr.getJSONObject(i));
-            }
-            Collections.sort( jsonValues, new Comparator<JSONObject>() {
-                //You can change "Name" with "ID" if you want to sort by ID
-                private static final String KEY_NAME = "entity_id";
-
-                @Override
-                public int compare(JSONObject a, JSONObject b) {
-                    String valA = "", valB = "";
-
-                    try {
-                        valA = (String) a.get(KEY_NAME);
-                        valB = (String) b.get(KEY_NAME);
-                    }
-                    catch (JSONException e) {
-                        //do something
-                    }
-
-                    return valA.compareTo(valB);
-                }
-            });
-
-            for (int i = 0; i < jsonArr.length(); i++) {
-                sortedJsonArray.put(jsonValues.get(i));
-            }
-            return sortedJsonArray;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return new JSONArray();
     }
 
 
@@ -217,6 +149,12 @@ public class Inventory extends Fragment{
                 }
             }
         });
+    }
+
+    @Override
+    public void onInterfaceClick() {
+        page++;
+        sendRequest(BASE_URL_DEFAULT + "getInventory.php");
     }
 
     /**

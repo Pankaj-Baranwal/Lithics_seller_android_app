@@ -1,8 +1,10 @@
 package com.fame.plumbum.lithicsin.fragments;
 
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -16,24 +18,39 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
 import com.fame.plumbum.lithicsin.R;
+import com.fame.plumbum.lithicsin.Singleton;
 import com.fame.plumbum.lithicsin.adapters.OrderAdapter;
+import com.fame.plumbum.lithicsin.interfaces.Load_more;
 import com.fame.plumbum.lithicsin.model.Orders;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.fame.plumbum.lithicsin.utils.Constants.BASE_URL_DEFAULT;
 
 /**
  * Created by pankaj on 17/1/17.
  */
 
-public class MyOrders extends Fragment {
+public class MyOrders extends Fragment implements Load_more {
+
+    View rootView;
     private OrderAdapter adapter;
     private List<Orders> OrdersList;
-    View rootView;
-    private RecyclerView recyclerView;
+    private int count = 10, page = 0;
 
     @Nullable
     @Override
@@ -41,25 +58,68 @@ public class MyOrders extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_my_orders, container, false);
 
         initCollapsingToolbar();
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.list_products);
-
-        OrdersList = new ArrayList<>();
-        adapter = new OrderAdapter(getContext(), OrdersList, "MyOrders");
-
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.addItemDecoration(new MyOrders.GridSpacingItemDecoration(1, dpToPx(10), true));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapter);
-
-        prepareOrder();
 
         try {
             Glide.with(getContext()).load(R.drawable.cover).into((ImageView) rootView.findViewById(R.id.backdrop));
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        init();
         return rootView;
+    }
+
+    private void init() {
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.list_products);
+
+        OrdersList = new ArrayList<>();
+        adapter = new OrderAdapter(getContext(), OrdersList, "MyOrders", this);
+
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.addItemDecoration(new MyOrders.GridSpacingItemDecoration(1, dpToPx(10), true));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+        sendRequest(BASE_URL_DEFAULT + "getLastOrders.php");
+    }
+
+    public void sendRequest(String url) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+//                            Log.e("Last Orders", response);
+                            JSONArray jA = new JSONArray(response);
+                            for (int i =0; i<jA.length(); i++ ){
+                                Orders order = new Orders();
+                                order.setName(jA.getJSONObject(i).getString("name"));
+                                order.setOrder_id(jA.getJSONObject(i).getString("increment_id"));
+                                order.setPrice(Double.parseDouble(jA.getJSONObject(i).getString("price_incl_tax")));
+                                order.setStatus(jA.getJSONObject(i).getString("status"));
+                                order.setThumbnail(jA.getJSONObject(i).getString("image"));
+                                OrdersList.add(order);
+                            }
+                            adapter.notifyDataSetChanged();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getContext(), "Error receiving data!", Toast.LENGTH_SHORT).show();
+            }
+        }){
+            protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+                params.put("sku", sp.getString("sku", "HCF"));
+                params.put("count", count+"");
+                params.put("page", page+"");
+                return params;
+            }};
+        Singleton.getInstance().addToRequestQueue(stringRequest);
     }
 
     /**
@@ -98,48 +158,10 @@ public class MyOrders extends Fragment {
         });
     }
 
-    /**
-     * Adding few Order for testing
-     */
-    private void prepareOrder() {
-        int[] covers = new int[]{
-                R.drawable.bag1,
-                R.drawable.bag2,
-                R.drawable.bag3,
-                R.drawable.earring1,
-                R.drawable.earring2,
-                R.drawable.earring3,
-                R.drawable.earring4,
-                R.drawable.earring5,
-                R.drawable.necklace,
-                R.drawable.album10,
-                R.drawable.album11};
-
-        Orders a = new Orders("1234567", 234, covers[0]+"", "Product1", "CANCELLED");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[1]+"", "Product1", "COMPLETE");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[2]+"", "Product1", "PROCESSING");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[3]+"", "Product1", "PENDING");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[4]+"", "Product1", "COMPLETE");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[5]+"", "Product1", "COMPLETE");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[6]+"", "Product1", "COMPLETE");
-        OrdersList.add(a);
-
-        a = new Orders("1234567", 234, covers[7]+"", "Product1", "COMPLETE");
-        OrdersList.add(a);
-
-        adapter.notifyDataSetChanged();
+    @Override
+    public void onInterfaceClick() {
+        page++;
+        sendRequest(BASE_URL_DEFAULT + "getLastOrders.php");
     }
 
     /**

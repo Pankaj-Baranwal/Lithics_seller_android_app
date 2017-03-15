@@ -23,6 +23,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.Singleton;
 import com.fame.plumbum.lithicsin.adapters.OrderAdapter;
+import com.fame.plumbum.lithicsin.interfaces.Load_more;
 import com.fame.plumbum.lithicsin.model.Orders;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
@@ -50,7 +51,7 @@ import static com.fame.plumbum.lithicsin.utils.Constants.BASE_URL_DEFAULT;
  * Created by pankaj on 15/1/17.
  */
 
-public class Home extends Fragment implements OnChartValueSelectedListener {
+public class Home extends Fragment implements OnChartValueSelectedListener, Load_more {
 
     View rootView;
     private PieChart mChart;
@@ -85,7 +86,7 @@ public class Home extends Fragment implements OnChartValueSelectedListener {
 
     private void init() {
         list_orders = (RecyclerView) rootView.findViewById(R.id.list_orders);
-        adapter = new OrderAdapter(getActivity(), dataList, "1");
+        adapter = new OrderAdapter(getActivity(), dataList, "1", this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         list_orders.setLayoutManager(mLayoutManager);
         list_orders.setAdapter(adapter);
@@ -136,7 +137,7 @@ public class Home extends Fragment implements OnChartValueSelectedListener {
         l.setEnabled(false);
     }
 
-    private void sendRequest(String url) {
+    public void sendRequest(String url) {
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -144,7 +145,7 @@ public class Home extends Fragment implements OnChartValueSelectedListener {
                         try {
 //                            Log.e("Last Orders", response);
                             JSONArray jA = new JSONArray(response);
-                            for (int i =0; i<(jA.length()<5?jA.length():5); i++ ){
+                            for (int i =0; i<jA.length(); i++ ){
                                 Orders order = new Orders();
                                 order.setName(jA.getJSONObject(i).getString("name"));
                                 order.setOrder_id(jA.getJSONObject(i).getString("increment_id"));
@@ -255,5 +256,11 @@ public class Home extends Fragment implements OnChartValueSelectedListener {
     @Override
     public void onNothingSelected() {
         Log.i("PieChart", "nothing selected");
+    }
+
+    @Override
+    public void onInterfaceClick() {
+        page++;
+        sendRequest(BASE_URL_DEFAULT + "getLastOrders.php");
     }
 }
