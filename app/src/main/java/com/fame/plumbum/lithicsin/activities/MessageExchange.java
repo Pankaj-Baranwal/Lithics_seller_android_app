@@ -17,13 +17,26 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.fame.plumbum.lithicsin.R;
+import com.fame.plumbum.lithicsin.Singleton;
 import com.fame.plumbum.lithicsin.adapters.Chat_adapter;
-import com.fame.plumbum.lithicsin.database.ChatTable;
+import com.fame.plumbum.lithicsin.model.ChatTable;
 import com.fame.plumbum.lithicsin.database.DBHandler;
+import com.fame.plumbum.lithicsin.utils.Constants;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by pankaj on 26/2/17.
@@ -31,18 +44,17 @@ import java.util.List;
 
 public class MessageExchange extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
-    String remote_id, remote_name;
+    String remote_id, name;
     ListView chat_list;
     Chat_adapter adapter;
     List<ChatTable> chatTables;
-    String time_created;
     public SwipeRefreshLayout swipeRefreshLayout;
     MessageExchange.MyReceiver receiver;
 
 
     @Override
     public void onRefresh() {
-//        refreshUpdate();
+        refreshUpdate();
     }
 
     @Override
@@ -83,33 +95,28 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
         chat_list = (ListView) findViewById(R.id.list_chat);
         final EditText add_chat = (EditText) findViewById(R.id.chat_add);
         remote_id = getIntent().getExtras().getString("remote_id");
-        remote_name = getIntent().getExtras().getString("remote_name");
+        name = getIntent().getExtras().getString("name");
         final ImageButton sendChat = (ImageButton) findViewById(R.id.add_button);
         swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipe);
         swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        swipeRefreshLayout.setRefreshing(true);
+//        swipeRefreshLayout.post(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        swipeRefreshLayout.setRefreshing(true);
 //                                        refreshUpdate();
-                                    }
-                                }
-        );
+//                                    }
+//                                }
+//        );
         sendChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String add_chat_text = add_chat.getText().toString();
                 if (add_chat_text.length()>0){
                     add_chat.setText("");
-//                    sendChat(add_chat_text.replace(" ", "%20"));
+                    sendChat(add_chat_text);
                 }
             }
         });
-        refresh();
-    }
-
-    private void refresh(){
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         DBHandler db = new DBHandler(this);
         chatTables = db.getChat(remote_id);
 //        CircleImageView user_img_self = (CircleImageView)findViewById(R.id.image_user_self);
@@ -119,6 +126,7 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
         adapter = new Chat_adapter(this, chatTables);
         db.close();
         chat_list.setAdapter(adapter);
+        chat_list.setSelection(adapter.getCount() - 1);
     }
 
 //    private String getImage(String uid, final boolean local, final CircleImageView user_img) {
@@ -156,17 +164,18 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
 //        Picasso.with(this).load(Constants.BASE_URL_DEFAULT + "ImageReturn?ImageName="+s).resize(256,256).error(R.drawable.user).into(user_img);
 //    }
 
-//    private void refreshUpdate(){
+    private void refreshUpdate(){
 //        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-//        DBHandler db = new DBHandler(this);
-//        chatTables = db.getChat(remote_id);
+        DBHandler db = new DBHandler(this);
+        chatTables = db.getChat(remote_id);
 //        CircleImageView user_img_self = (CircleImageView)findViewById(R.id.image_user_self);
 //        CircleImageView user_img_remote = (CircleImageView)findViewById(R.id.image_user_remote);
 //        getImage(sp.getString("uid", ""), true, user_img_self);
 //        getImage(remote_id, false, user_img_remote);
-//        adapter = new Chat_adapter(this, chatTables);
-//        //adapter.chats.add(new ChatTable());
-//        db.close();
+        adapter.notifyDataSetChanged();
+        chat_list.setSelection(adapter.getCount() - 1);
+        //adapter.chats.add(new ChatTable());
+        db.close();
 //        chat_list.post(new Runnable() {
 //            @Override
 //            public void run() {
@@ -176,7 +185,7 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
 //                swipeRefreshLayout.setRefreshing(false);
 //            }
 //        });
-//    }
+    }
 
     @Override
     public void onBackPressed() {
@@ -184,39 +193,44 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
         finish();
     }
 
-//    private void sendChat(final String message){
-//        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-//        //SimpleDateFormat sdf = new SimpleDateFormat("MMM dd");
-//        SimpleDateFormat sdf = new SimpleDateFormat(getResources().getString(R.string.date_format));
-//        time_created = sdf.format(new Date());
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.BASE_URL_DEFAULT,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//                        try {
-//                            JSONObject jO = new JSONObject(response);
-//                            getDetails(message);
-//                        } catch (JSONException ignored) {
-//                        }
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Toast.makeText(MessageExchange.this, "Error sending data!", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//        stringRequest.setRetryPolicy(new DefaultRetryPolicy(5000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//        Singleton.getInstance().addToRequestQueue(stringRequest);
-//    }
+    private void sendChat(final String message){
+        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.BASE_URL_DEFAULT + "sendViaFirebase.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jO = new JSONObject(response);
+                            getDetails(message, jO.getString("timestamp"));
+                        } catch (JSONException ignored) {
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MessageExchange.this, "Error sending data!", Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("message", message);
+                params.put("my_id", sp.getString("id", ""));
+                params.put("my_name", sp.getString("my_name", ""));
+                return params;
+            }
+        };
+        Singleton.getInstance().addToRequestQueue(stringRequest);
+    }
 
-    private void getDetails(String message) {
+    private void getDetails(String message, String timestamp) {
         DBHandler db = new DBHandler(this);
-        int status = 1;
-        ChatTable chatTable = new ChatTable(status, remote_id, remote_name, message.replace("%20", " "), time_created.replace("%20", " "));
+        int status = 2;
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        ChatTable chatTable = new ChatTable(status, sp.getString("id", ""), sp.getString("my_name", ""), message, timestamp);
         db.addChat(chatTable);
         db.close();
         chatTables.add(chatTable);
-        adapter.chats = chatTables;
         adapter.notifyDataSetChanged();
         chat_list.setSelection(adapter.getCount() - 1);
     }
@@ -229,13 +243,12 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancelAll();
             DBHandler db = new DBHandler(MessageExchange.this);
-//            ChatTable chatTable = new ChatTable(, intent.getExtras().getString("remote_id"), intent.getExtras().getString("remote_name"), intent.getExtras().getString("message"), intent.getExtras().getString("created_at"));
-//            db.addChat(chatTable);
+            ChatTable chatTable = new ChatTable(intent.getExtras().getInt("status"), intent.getExtras().getString("remote_id"), intent.getExtras().getString("name"), intent.getExtras().getString("message"), intent.getExtras().getString("timestamp"));
+            db.addChat(chatTable);
             db.close();
-//            chatTables.add(chatTable);
-//            adapter.chats = chatTables;
-//            adapter.notifyDataSetChanged();
-//            chat_list.setSelection(adapter.getCount() - 1);
+            chatTables.add(chatTable);
+            adapter.notifyDataSetChanged();
+            chat_list.setSelection(adapter.getCount() - 1);
         }
     }
 }
