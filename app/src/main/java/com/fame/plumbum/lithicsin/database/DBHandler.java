@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.fame.plumbum.lithicsin.model.ChatTable;
+import com.fame.plumbum.lithicsin.model.NotifTable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +25,7 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String KEY_ID = "id";
     private static final String STATUS = "status";
     private static final String REMOTE_ID = "remote_id";
-    private static final String REMOTE_NAME = "remote_name";
+    private static final String NAME = "name";
     private static final String MESSAGE = "message";
     private static final String TIMESTAMP = "timestamp";
 
@@ -34,7 +37,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TABLE_CHAT = "CREATE TABLE IF NOT EXISTS " + TABLE_CHAT + "("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + STATUS + " INT NOT NULL, "
-                + REMOTE_ID + " TEXT NOT NULL, " + REMOTE_NAME + " TEXT NOT NULL, "
+                + REMOTE_ID + " TEXT NOT NULL, " + NAME + " TEXT NOT NULL, "
                 + MESSAGE + " TEXT NOT NULL, " + TIMESTAMP + " TEXT NOT NULL" + ")";
         String CREATE_TABLE_NOTIF = "CREATE TABLE IF NOT EXISTS " + TABLE_NOTIF + "("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + MESSAGE + " TEXT NOT NULL,"
@@ -54,8 +57,8 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(STATUS, chatTable.getStatus());
-        values.put(REMOTE_ID, chatTable.getRemote_id());
-        values.put(REMOTE_NAME, chatTable.getRemote_name());
+        values.put(REMOTE_ID, chatTable.getremote_id());
+        values.put(NAME, chatTable.getName());
         values.put(MESSAGE, chatTable.getMessage());
         values.put(TIMESTAMP, chatTable.getTimestamp());
 
@@ -92,7 +95,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public List<ChatTable> getChat(String remote_id) {
         SQLiteDatabase db = this.getReadableDatabase();
         String getQuery = "SELECT * FROM " + TABLE_CHAT + " WHERE " + REMOTE_ID + " = ?";
-        Cursor cursor = db.rawQuery(getQuery, new String[]{REMOTE_ID});
+        Cursor cursor = db.rawQuery(getQuery, new String[]{remote_id});
         List<ChatTable> chatTables = new ArrayList<>();
         if (cursor != null) {
             cursor.moveToFirst();
@@ -123,10 +126,10 @@ public class DBHandler extends SQLiteOpenHelper {
         db.delete(TABLE_NOTIF, KEY_ID + "=?", new String[]{String.valueOf(notif.getId())});
     }
 
-    public List<ChatTable> getPeronalChats(String remote) {
+    public List<ChatTable> getPeronalChats(String remote_id) {
         SQLiteDatabase db = this.getReadableDatabase();
         String getQuery = "SELECT * FROM " + TABLE_CHAT + " WHERE " + REMOTE_ID + " = ?";
-        Cursor cursor = db.rawQuery(getQuery, new String[]{remote});
+        Cursor cursor = db.rawQuery(getQuery, new String[]{remote_id});
 
         List<ChatTable> chatTables = new ArrayList<>();
         List<String> remote_chats = new ArrayList<>();

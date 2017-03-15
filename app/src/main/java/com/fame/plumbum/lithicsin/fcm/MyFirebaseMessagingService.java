@@ -7,10 +7,10 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.activities.MessageExchange;
+import com.fame.plumbum.lithicsin.model.ChatTable;
 import com.fame.plumbum.lithicsin.database.DBHandler;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -30,10 +30,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         sendNotification(remoteMessage.getData());
         Intent intents=new Intent();
         intents.setAction("Lithics.in_Firebase");
-
+        intents.putExtra("status", 1);
         intents.putExtra("message", remoteMessage.getData().get("message"));
-        intents.putExtra("send_to", "");
-
+        intents.putExtra("name", remoteMessage.getData().get("name"));
+        intents.putExtra("timestamp", remoteMessage.getData().get("timestamp"));
+        intents.putExtra("remote_id", remoteMessage.getData().get("remote_id"));
         getBaseContext().sendBroadcast(intents);
     }
 
@@ -42,11 +43,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void sendNotification(Map<String, String> messageBody) {
         Intent intent = new Intent(this, MessageExchange.class);
         DBHandler db = new DBHandler(this);
-        Log.e("TAG", messageBody.get("message"));
-//        db.addChat(new ChatTable(messageBody.get("SenderId"), messageBody.get("Message"), messageBody.get("CreatedAt")));
-        intent.putExtra("message", messageBody.get("message"));
-        intent.putExtra("seller_id", messageBody.get("send_to"));
-
+        db.addChat(new ChatTable(Integer.parseInt(messageBody.get("status")), messageBody.get("remote_id"), messageBody.get("name"), messageBody.get("message"), messageBody.get("timestamp")));
+        db.close();
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
@@ -55,7 +53,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.logo_autocrop)
                 .setContentTitle("From Lithics.in")
-                .setContentText(messageBody.get("Title"))
+                .setContentText("New message")
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);
