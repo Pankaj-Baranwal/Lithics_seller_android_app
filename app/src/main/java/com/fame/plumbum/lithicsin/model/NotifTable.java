@@ -1,4 +1,4 @@
-package com.fame.plumbum.lithicsin.database;
+package com.fame.plumbum.lithicsin.model;
 
 /**
  * Created by pankaj on 25/8/16.
