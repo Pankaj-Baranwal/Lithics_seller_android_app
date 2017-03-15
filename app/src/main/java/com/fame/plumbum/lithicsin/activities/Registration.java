@@ -37,7 +37,6 @@ import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.Singleton;
 import com.fame.plumbum.lithicsin.adapters.MiscQuesAdapter;
 import com.fame.plumbum.lithicsin.model.DataSetMiscQues;
-import com.fame.plumbum.lithicsin.utils.Constants;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
@@ -58,15 +57,14 @@ import static com.fame.plumbum.lithicsin.utils.Constants.BASE_URL_DEFAULT;
  */
 
 public class Registration extends AppCompatActivity {
-    SharedPreferences sp;
-    SharedPreferences.Editor editor;
-    String token;
+
     RelativeLayout contact, official, misc;
     RecyclerView misc_list;
     RecyclerView.Adapter adapter;
     List<DataSetMiscQues> dataList = new ArrayList<>();
     Button submit;
     String permanent_address_value , pickup_address_value, categories_value = "default_value" ;
+    SharedPreferences sp;
 
 
     @Override
@@ -98,14 +96,11 @@ public class Registration extends AppCompatActivity {
         contact = (RelativeLayout) findViewById(R.id.rl_contact_info);
         misc = (RelativeLayout) findViewById(R.id.rl_miscellaneous);
         misc_list = (RecyclerView) findViewById(R.id.list_misc_questions);
-        adapter = new MiscQuesAdapter(this, dataList);
+        adapter = new MiscQuesAdapter(dataList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         misc_list.setLayoutManager(mLayoutManager);
         misc_list.setAdapter(adapter);
         sendRequest(BASE_URL_DEFAULT + "get_registration_questions.php");
-//        final LinearLayout ll_dialog_contact = (LinearLayout) findViewById(R.id.ll_dialog_contact);
-//        final LinearLayout ll_dialog_official = (LinearLayout) findViewById(R.id.ll_dialog_official);
-//        final LinearLayout ll_dialog_misc = (LinearLayout) findViewById(R.id.ll_dialog_misc);
         contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -129,22 +124,18 @@ public class Registration extends AppCompatActivity {
 
 
     private void sendRequest(String url) {
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.BASE_URL_DEFAULT + "get_registration_questions.php",
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
-//                            Log.e("Registration", response);
                             JSONArray jA = new JSONArray(response);
-                            Log.e("SIZE", jA.length()+"");
                             for (int i =0; i<jA.length(); i++ ){
                                 DataSetMiscQues dataset = new DataSetMiscQues();
                                 dataset.setQues(jA.getJSONObject(i).getString("question"));
-                                Log.e("DATA", jA.getJSONObject(i).getString("question"));
                                 dataset.setAns(jA.getJSONObject(i).getString("answer_type"));
                                 dataList.add(dataset);
                             }
-//                            adapter.setDataList(dataList);
                             adapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -184,7 +175,7 @@ public class Registration extends AppCompatActivity {
         final MaterialEditText pincode_pickup= (MaterialEditText) mView.findViewById(R.id.pincode_pickup);
 
         final CheckBox pickup_checkbox = (CheckBox) mView.findViewById(R.id.checkbox_pickup);
-        final List<String> states = Arrays.asList("Choose your state", "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal");
+        final List<String> states = Arrays.asList(getResources().getStringArray(R.array.states));
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, states);
         // Specify the layout to use when the list of choices appears
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -301,14 +292,13 @@ public class Registration extends AppCompatActivity {
                                 new Response.Listener<String>() {
                                     @Override
                                     public void onResponse(String response) {
-                                        Log.e("REPONSE_CONTACT", response);
                                         if (response.contains("exists")){
                                             Toast.makeText(Registration.this, "Already registered number!", Toast.LENGTH_SHORT).show();
                                         }else if (response.contains("id")){
                                             try {
+                                                SharedPreferences.Editor editor = sp.edit();
                                                 JSONArray resp = new JSONArray(response);
                                                 JSONObject jo = resp.getJSONObject(0);
-                                                editor = sp.edit();
                                                 editor.putString("id", jo.getString("id"));
                                                 editor.apply();
                                             } catch (JSONException e) {
@@ -416,19 +406,18 @@ public class Registration extends AppCompatActivity {
 
     private void initFCM() {
         if (!sp.contains("token")){
-            SharedPreferences.Editor editor = sp.edit();
             if (FirebaseInstanceId.getInstance()!=null){
-                token = FirebaseInstanceId.getInstance().getToken();
+                String token = FirebaseInstanceId.getInstance().getToken();
                 if (token != null) {
-                    Log.e("TOKEN", token);
+                    Log.e(getClass().getName(), token);
+                    SharedPreferences.Editor editor = sp.edit();
                     editor.putString("token", token);
                     editor.apply();
-//                    sendFCM(sp.getString("uid", ""));
+                    sendFCM(sp.getString("token", ""));
                 }
             }
         }else {
             Log.e("TOKEN", sp.getString("token", ""));
-//            sendFCM(sp.getString("uid", ""));
         }
     }
 

@@ -1,14 +1,20 @@
 package com.fame.plumbum.lithicsin.fragments;
 
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -18,13 +24,31 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
 import com.fame.plumbum.lithicsin.R;
+import com.fame.plumbum.lithicsin.Singleton;
+import com.fame.plumbum.lithicsin.adapters.MiscQuesAdapter;
+import com.fame.plumbum.lithicsin.model.DataSetMiscQues;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.fame.plumbum.lithicsin.utils.Constants.BASE_URL_DEFAULT;
 
 /**
  * Created by pankaj on 12/1/17.
@@ -33,6 +57,11 @@ import java.util.List;
 public class MyAccount extends Fragment {
     View rootView;
     RelativeLayout contact, official, misc;
+    RecyclerView misc_list;
+    RecyclerView.Adapter adapter;
+    List<DataSetMiscQues> dataList = new ArrayList<>();
+    SharedPreferences sp;
+    String permanent_address_value , pickup_address_value, categories_value = "default_value" ;
 
 
     @Nullable
@@ -52,52 +81,103 @@ public class MyAccount extends Fragment {
     }
 
     private void init() {
+        sp = PreferenceManager.getDefaultSharedPreferences(getContext());
         official = (RelativeLayout) rootView.findViewById(R.id.rl_official_details);
         contact = (RelativeLayout) rootView.findViewById(R.id.rl_contact_info);
         misc = (RelativeLayout) rootView.findViewById(R.id.rl_miscellaneous);
-        final LinearLayout ll_dialog_contact = (LinearLayout) getActivity().findViewById(R.id.ll_dialog_contact);
-        final LinearLayout ll_dialog_official = (LinearLayout) getActivity().findViewById(R.id.ll_dialog_official);
-        final LinearLayout ll_dialog_misc = (LinearLayout) getActivity().findViewById(R.id.ll_dialog_misc);
+        misc_list = (RecyclerView) rootView.findViewById(R.id.list_misc_questions);
+        adapter = new MiscQuesAdapter(dataList);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        misc_list.setLayoutManager(mLayoutManager);
+        misc_list.setAdapter(adapter);
+        sendRequest(BASE_URL_DEFAULT + "get_registration_questions.php");
         contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 useDialogContact();
             }
         });
         official.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 useDialogOfficial();
             }
         });
         misc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 useDialogMisc();
             }
         });
     }
 
+    private void sendRequest(String url) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jA = new JSONArray(response);
+                            for (int i =0; i<jA.length(); i++ ){
+                                DataSetMiscQues dataset = new DataSetMiscQues();
+                                dataset.setQues(jA.getJSONObject(i).getString("question"));
+                                dataset.setAns(jA.getJSONObject(i).getString("answer_type"));
+                                dataList.add(dataset);
+                            }
+                            adapter.notifyDataSetChanged();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getContext(), "Error receiving data!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        Singleton.getInstance().addToRequestQueue(stringRequest);
+    }
+
     private void useDialogOfficial() {
-        MaterialEditText tin = (MaterialEditText) getActivity().findViewById(R.id.tin);
-        MaterialEditText cst = (MaterialEditText) getActivity().findViewById(R.id.cst);
-        Button permanent = (Button) getActivity().findViewById(R.id.permanent_address);
-        final Button pickup = (Button) getActivity().findViewById(R.id.pickup_address);
-        Button categories = (Button) getActivity().findViewById(R.id.product_categories);
+        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getContext());
+        View mView = layoutInflaterAndroid.inflate(R.layout.dialog_official, null);
+        final MaterialEditText vat = (MaterialEditText) mView.findViewById(R.id.tin);
+        final MaterialEditText cst = (MaterialEditText) mView.findViewById(R.id.cst);
+        final Button permanent = (Button) mView.findViewById(R.id.permanent_address);
+        final Button pickup = (Button) mView.findViewById(R.id.pickup_address);
+        final Button categories = (Button) mView.findViewById(R.id.product_categories);
+//        final Scene scene1, scene2;
+//        final Transition transition;
+//        final boolean[] start = new boolean[1];
+        final LinearLayout permanent_wrapper = (LinearLayout) mView.findViewById(R.id.ll_permanent_wrapper);
+        final LinearLayout pickup_wrapper = (LinearLayout) mView.findViewById(R.id.ll_pickup_wrapper);
 
-        CheckBox pickup_checkbox = (CheckBox) getActivity().findViewById(R.id.checkbox_pickup);
-        TextView heading = (TextView) getActivity().findViewById(R.id.heading_my_account_dialog);
-        Spinner state_of_operation = (Spinner) getActivity().findViewById(R.id.state_of_operation);
+        final MaterialEditText street1 = (MaterialEditText) mView.findViewById(R.id.street1);
+        final MaterialEditText street2 = (MaterialEditText) mView.findViewById(R.id.street2);
+        final MaterialEditText city = (MaterialEditText) mView.findViewById(R.id.city);
+        final MaterialEditText pincode = (MaterialEditText) mView.findViewById(R.id.pincode);
 
+        final MaterialEditText street1_pickup = (MaterialEditText) mView.findViewById(R.id.street1_pickup);
+        final MaterialEditText street2_pickup = (MaterialEditText) mView.findViewById(R.id.street2_pickup);
+        final MaterialEditText city_pickup = (MaterialEditText) mView.findViewById(R.id.city_pickup);
+        final MaterialEditText pincode_pickup= (MaterialEditText) mView.findViewById(R.id.pincode_pickup);
+
+        final CheckBox pickup_checkbox = (CheckBox) mView.findViewById(R.id.checkbox_pickup);
+        final List<String> states = Arrays.asList(getResources().getStringArray(R.array.states));
+
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, states);
+        // Specify the layout to use when the list of choices appears
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        final Spinner state_of_operation = (Spinner) mView.findViewById(R.id.state_of_operation);
+        state_of_operation.setAdapter(adapter1);
         pickup_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b){
                     pickup.setClickable(false);
                     pickup.setBackgroundColor(0x886db096);
+                    pickup_wrapper.setVisibility(View.GONE);
                 }else{
                     pickup.setClickable(true);
                     pickup.setBackgroundColor(0xff6db096);
@@ -108,72 +188,172 @@ public class MyAccount extends Fragment {
         permanent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (permanent_wrapper.getVisibility()==View.GONE) {
+                    permanent_wrapper.setVisibility(View.VISIBLE);
+                    street1.requestFocus();
+                }
+                else
+                    permanent_wrapper.setVisibility(View.GONE);
             }
         });
         pickup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (pickup_wrapper.getVisibility()==View.GONE) {
+                    pickup_wrapper.setVisibility(View.VISIBLE);
+                    street2.requestFocus();
+                }
+                else
+                    pickup_wrapper.setVisibility(View.GONE);
             }
         });
         categories.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Toast.makeText(getContext(), "Click words", Toast.LENGTH_SHORT).show();
             }
         });
-        List<String> states = Arrays.asList("Choose your state", "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal");
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, states);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        state_of_operation.setAdapter(adapter);
-        state_of_operation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
-            }
+        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(getContext());
+        alertDialogBuilderUserInput.setView(mView);
+        alertDialogBuilderUserInput
+                .setCancelable(true)
+                .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogBox, int id) {
+                        permanent_address_value = street1 + "\n" + street2 + "\n" + city + "\n" + pincode;
+                        pickup_address_value = street1_pickup + "\n" + street2_pickup + "\n" + city_pickup + "\n" + pincode_pickup;
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "saveOfficialDetails.php",
+                                new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        Toast.makeText(getContext(), "Updated", Toast.LENGTH_SHORT).show();
+                                    }
+                                }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(getContext(), "Notifications not working!", Toast.LENGTH_SHORT).show();
+                            }
+                        }){
+                            @Override
+                            protected Map<String, String> getParams() throws AuthFailureError {
+                                Map<String, String> params = new HashMap<String, String>();
+                                params.put("vat", vat.getText().toString()+ "");
+                                params.put("cst", cst.getText().toString()+ "");
+                                params.put("permanent", permanent_address_value + "");
+                                params.put("pickup", pickup_address_value + "");
+                                params.put("state_operation", states.get(state_of_operation.getSelectedItemPosition()) + "");
+                                params.put("categories", categories_value + "");
+                                return params;
+                            }
+                        };
+                        Singleton.getInstance().addToRequestQueue(stringRequest);
+                    }
+                })
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogBox, int id) {
+                                dialogBox.cancel();
+                            }
+                        });
 
-            }
-        });
+        AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
+        alertDialogAndroid.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+
+        alertDialogAndroid.show();
     }
 
     private void useDialogContact() {
-        MaterialEditText name_of_organization= (MaterialEditText) getActivity().findViewById(R.id.name_organization);
-        MaterialEditText email_id = (MaterialEditText) getActivity().findViewById(R.id.email_id);
-        MaterialEditText contact_name = (MaterialEditText) getActivity().findViewById(R.id.contact_name);
-        MaterialEditText mobile_no = (MaterialEditText) getActivity().findViewById(R.id.mobile_no);
-        TextView heading = (TextView) getActivity().findViewById(R.id.heading_my_account_dialog);
-        Spinner state_of_operation = (Spinner) getActivity().findViewById(R.id.state_of_operation);
+        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getContext());
+        View mView = layoutInflaterAndroid.inflate(R.layout.dialog_contact, null);
+        final MaterialEditText name_of_organization= (MaterialEditText) mView.findViewById(R.id.name_organization);
+        final MaterialEditText email_id = (MaterialEditText) mView.findViewById(R.id.email_id);
+        final MaterialEditText contact_name = (MaterialEditText) mView.findViewById(R.id.contact_name);
+        final MaterialEditText mobile_no = (MaterialEditText) mView.findViewById(R.id.mobile_no);
 
+        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(getContext());
+        alertDialogBuilderUserInput.setView(mView);
+        alertDialogBuilderUserInput
+                .setCancelable(true)
+                .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogBox, int id) {
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "saveSellerDetails.php",
+                                new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        if (response.contains("exists")){
+                                            Toast.makeText(getContext(), "Already registered number!", Toast.LENGTH_SHORT).show();
+                                        }else if (response.contains("id")){
+                                            try {
+                                                SharedPreferences.Editor editor = sp.edit();
+                                                JSONArray resp = new JSONArray(response);
+                                                JSONObject jo = resp.getJSONObject(0);
+                                                editor.putString("id", jo.getString("id"));
+                                                editor.apply();
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
 
-        List<String> states = Arrays.asList("Choose your state", "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal");
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, states);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        state_of_operation.setAdapter(adapter);
-        state_of_operation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                    }
+                                }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(getContext(), "Notifications not working!", Toast.LENGTH_SHORT).show();
+                            }
+                        }){
+                            @Override
+                            protected Map<String, String> getParams() throws AuthFailureError {
+                                Map<String, String> params = new HashMap<String, String>();
+                                params.put("seller_name", name_of_organization.getText().toString()+"");
+                                params.put("email_id", email_id.getText().toString()+"");
+                                params.put("contact_person", contact_name.getText().toString()+"");
+                                params.put("mobile_number", mobile_no.getText().toString()+"");
+                                return params;
+                            }
+                        };
+                        Singleton.getInstance().addToRequestQueue(stringRequest);
+                    }
+                })
 
-            }
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogBox, int id) {
+                                dialogBox.cancel();
+                            }
+                        });
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+        AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
+        alertDialogAndroid.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
 
-            }
-        });
+        alertDialogAndroid.show();
     }
 
     private void useDialogMisc() {
+        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getContext());
+        View mView = layoutInflaterAndroid.inflate(R.layout.dialog_misc, null);
 
+        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(getContext());
+        alertDialogBuilderUserInput.setView(mView);
+        alertDialogBuilderUserInput
+                .setCancelable(true)
+                .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogBox, int id) {
+                        // ToDo get user input here
+                    }
+                })
 
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogBox, int id) {
+                                dialogBox.cancel();
+                            }
+                        });
 
+        AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
+        alertDialogAndroid.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+
+        alertDialogAndroid.show();
     }
 
     /**
