@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fame.plumbum.lithicsin.R;
+import com.fame.plumbum.lithicsin.interfaces.Load_more;
 import com.fame.plumbum.lithicsin.model.Orders;
 import com.squareup.picasso.Picasso;
 
@@ -33,6 +34,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
     private Context mContext;
     private static List<Orders> albumList;
     private String parent;
+    private Load_more instance = null;
 
     class VIEW_TYPES {
         static final int Normal = 2;
@@ -67,17 +69,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
             price = (TextView) view.findViewById(R.id.product_price);
             status = (TextView) view.findViewById(R.id.order_status);
             load_more = (Button) view.findViewById(R.id.load_more);
-            if (parent.contentEquals("0")){
-                status.setVisibility(GONE);
-            }
         }
     }
 
 
-    public OrderAdapter(Context mContext, List<Orders> albumList, String parent) {
+    public OrderAdapter(Context mContext, List<Orders> albumList, String parent, Load_more instance) {
         this.mContext = mContext;
         OrderAdapter.albumList = albumList;
         this.parent = parent;
+        this.instance = instance;
     }
 
     @Override
@@ -94,9 +94,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
                 Orders album = albumList.get(position);
                 holder.product_name.setText(album.getName());
                 holder.price.setText(album.getPrice());
-                if (parent.contentEquals("1")){
-                    holder.status.setText(album.getStatus());
-                }
                 holder.order_number.setText(album.getOrder_id());
                 holder.load_more.setVisibility(GONE);
                 holder.rl_orders.setVisibility(View.VISIBLE);
@@ -108,7 +105,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
                 holder.load_more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        instance.onInterfaceClick();
                     }
                 });
                 break;
