@@ -6,31 +6,27 @@ package com.fame.plumbum.lithicsin.model;
 public class ChatTable {
     private int id;
     private int status; // 1 means received, 2 means sent
-    private String remote_id, name, message, timestamp;
+    private String name, message, timestamp, chat_id;
 
-    public ChatTable(int status, String remote_id, String name, String message, String timestamp){
+    public ChatTable(int status, String chat_id, String name, String message, String timestamp){
         this.status = status;
-        this.remote_id = remote_id;
         this.name = name;
         this.message = message;
         this.timestamp = timestamp;
+        this.chat_id = chat_id;
     }
 
-    public ChatTable(int id, int status, String remote_id, String name, String message, String timestamp){
+    public ChatTable(int id, int status, String chat_id, String name, String message, String timestamp){
         this.id = id;
         this.status = status;
-        this.remote_id = remote_id;
         this.name = name;
         this.message = message;
         this.timestamp = timestamp;
+        this.chat_id = chat_id;
     }
 
     public int getStatus() {
         return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
     }
 
     public int getId() {
@@ -49,12 +45,16 @@ public class ChatTable {
         return name;
     }
 
-    public String getremote_id() {
-        return remote_id;
+    public String getChat_id() {
+        return chat_id;
     }
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public void setMessage(String message) {
@@ -70,7 +70,7 @@ public class ChatTable {
         this.name = name;
     }
 
-    public void setremote_id(String remote_id) {
-        this.remote_id = remote_id;
+    public void setChat_id(String chat_id) {
+        this.chat_id = chat_id;
     }
 }

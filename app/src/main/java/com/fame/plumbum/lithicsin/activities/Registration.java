@@ -82,7 +82,6 @@ public class Registration extends AppCompatActivity {
 
     private void init() {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
-        initFCM();
         submit = (Button) findViewById(R.id.submit_registration);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -301,6 +300,8 @@ public class Registration extends AppCompatActivity {
                                                 JSONObject jo = resp.getJSONObject(0);
                                                 editor.putString("id", jo.getString("id"));
                                                 editor.apply();
+                                                Log.e(getClass().getName(), jo.getString("id")+ " is the ID");
+                                                initFCM();
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
@@ -413,7 +414,7 @@ public class Registration extends AppCompatActivity {
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("token", token);
                     editor.apply();
-                    sendFCM(sp.getString("token", ""));
+                    sendFCM(sp.getString("id", ""), sp.getString("token", ""));
                 }
             }
         }else {
@@ -421,8 +422,8 @@ public class Registration extends AppCompatActivity {
         }
     }
 
-    private void sendFCM(final String uid){
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "firebase.php",
+    private void sendFCM(final String uid, final String token){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "saveToken.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -437,8 +438,8 @@ public class Registration extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("UserId", uid);
-                params.put("Token", sp.getString("token", ""));
+                params.put("user_id", uid);
+                params.put("firebase_token", token);
                 return params;
             }
         };

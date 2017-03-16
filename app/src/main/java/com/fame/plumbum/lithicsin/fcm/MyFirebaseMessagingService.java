@@ -31,10 +31,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent intents=new Intent();
         intents.setAction("Lithics.in_Firebase");
         intents.putExtra("status", 1);
+        intents.putExtra("chat_id", remoteMessage.getData().get("chat_id"));
         intents.putExtra("message", remoteMessage.getData().get("message"));
         intents.putExtra("name", remoteMessage.getData().get("name"));
         intents.putExtra("timestamp", remoteMessage.getData().get("timestamp"));
-        intents.putExtra("remote_id", remoteMessage.getData().get("remote_id"));
         getBaseContext().sendBroadcast(intents);
     }
 
@@ -43,9 +43,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void sendNotification(Map<String, String> messageBody) {
         Intent intent = new Intent(this, MessageExchange.class);
         DBHandler db = new DBHandler(this);
-        db.addChat(new ChatTable(Integer.parseInt(messageBody.get("status")), messageBody.get("remote_id"), messageBody.get("name"), messageBody.get("message"), messageBody.get("timestamp")));
+        db.addChat(new ChatTable(1, messageBody.get("chat_id"), messageBody.get("name"), messageBody.get("message"), messageBody.get("timestamp")));
         db.close();
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("chat_id", messageBody.get("chat_id"));
+        intent.putExtra("message", messageBody.get("message"));
+        intent.putExtra("name", messageBody.get("name"));
+        intent.putExtra("timestamp", messageBody.get("timestamp"));
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
