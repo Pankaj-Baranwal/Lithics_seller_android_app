@@ -155,6 +155,7 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
                                 dataList.add(order);
                             }
                             adapter.notifyDataSetChanged();
+                            list_orders.setAdapter(adapter);
                             list_orders.setVisibility(View.VISIBLE);
                             TextView no_product = (TextView) rootView.findViewById(R.id.no_products);
                             no_product.setVisibility(View.GONE);

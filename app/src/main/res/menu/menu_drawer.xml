@@ -33,6 +33,10 @@
         android:title="Contact Us">
         <menu>
             <item
+                android:id="@+id/chat"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Chat with us" />
+            <item
                 android:id="@+id/nav_email"
                 android:icon="@drawable/ic_menu_share"
                 android:title="E-mail" />
