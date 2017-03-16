@@ -1,6 +1,9 @@
 package com.fame.plumbum.lithicsin.activities;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -103,6 +106,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         } else if (id == R.id.nav_email) {
 
+        } else if (id == R.id.chat) {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+            Intent intent = new Intent(MainActivity.this, com.fame.plumbum.lithicsin.activities.MessageExchange.class);
+            intent.putExtra("chat_id", sp.getString("id", "1"));
+            intent.putExtra("name", "Lithics.in");
+            startActivity(intent);
         }
 
         if (fragment != null) {
