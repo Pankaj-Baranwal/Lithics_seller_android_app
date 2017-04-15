@@ -6,7 +6,7 @@ package com.fame.plumbum.lithicsin.model;
 
 public class DataSetMiscQues {
 
-    private String ques, ans;
+    private String ques, ans, type;
 
     public String getAns() {
         return ans;
@@ -22,5 +22,13 @@ public class DataSetMiscQues {
 
     public void setQues(String ques) {
         this.ques = ques;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
