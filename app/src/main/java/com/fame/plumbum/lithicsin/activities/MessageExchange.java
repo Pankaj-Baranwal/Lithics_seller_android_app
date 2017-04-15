@@ -30,11 +30,11 @@ import com.fame.plumbum.lithicsin.database.DBHandler;
 import com.fame.plumbum.lithicsin.model.ChatTable;
 import com.fame.plumbum.lithicsin.utils.Constants;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -73,7 +73,7 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(receiver, new IntentFilter("MyReceiver"));
+        registerReceiver(receiver, new IntentFilter("Lithics.in_Firebase"));
     }
 
 
@@ -125,12 +125,9 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        try {
-                            JSONObject jO = new JSONObject(response);
-                            Log.e(getClass().getName(), response);
-                            getDetails(message, jO.getString("timestamp"), jO.getString("chat_id"));
-                        } catch (JSONException ignored) {
-                        }
+                        Log.e(getClass().getName(), response);
+                        SimpleDateFormat sdf = new SimpleDateFormat(getResources().getString(R.string.date_format), Locale.US);
+                        getDetails(message, sdf.format(new Date()), chat_id);
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -142,9 +139,15 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("message", message);
-                params.put("send_to", "admin");
+                if (sp.getString("id", "").contentEquals(chat_id)) {
+                    params.put("send_to", "admin");
+                    params.put("my_name", sp.getString("my_name", "User"));
+                }
+                else {
+                    params.put("send_to", chat_id);
+                    params.put("my_name", "Admin");
+                }
                 params.put("my_id", sp.getString("id", ""));
-                params.put("my_name", sp.getString("my_name", "Pankaj"));
                 return params;
             }
         };
@@ -171,7 +174,7 @@ public class MessageExchange extends AppCompatActivity implements SwipeRefreshLa
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancelAll();
             DBHandler db = new DBHandler(MessageExchange.this);
-            ChatTable chatTable = new ChatTable(intent.getExtras().getInt("status"), intent.getExtras().getString("chat_id"), intent.getExtras().getString("name"), intent.getExtras().getString("message"), intent.getExtras().getString("timestamp"));
+            ChatTable chatTable = new ChatTable(1, intent.getExtras().getString("chat_id"), intent.getExtras().getString("name"), intent.getExtras().getString("message"), intent.getExtras().getString("timestamp"));
             db.addChat(chatTable);
             db.close();
             chatTables.add(chatTable);

@@ -1,5 +1,7 @@
 package com.fame.plumbum.lithicsin.fcm;
 
+import android.util.Log;
+
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
@@ -10,6 +12,6 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
     @Override
     public void onTokenRefresh() {
-        FirebaseInstanceId.getInstance().getToken();
+        Log.e(getClass().getName(), FirebaseInstanceId.getInstance().getToken() + "  is the token");
     }
 }
