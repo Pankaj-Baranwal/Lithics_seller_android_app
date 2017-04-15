@@ -10,7 +10,7 @@
         android:layout_marginEnd="50dp"
         android:layout_marginStart="50dp"
         android:layout_marginLeft="@dimen/activity_vertical_margin"
-        android:background="@drawable/border_chat_receive"
+        android:background="@drawable/border_chat_sent"
         >
         <LinearLayout
             android:id="@+id/ll_text_chat"

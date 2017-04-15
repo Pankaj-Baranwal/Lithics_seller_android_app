@@ -4,32 +4,28 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/home"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/home_red"
             android:title="Home" />
         <item
             android:id="@+id/my_account"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/account_red"
             android:title="My Account" />
         <item
             android:id="@+id/inventory"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/inventory_red"
             android:title="Inventory" />
         <item
             android:id="@+id/my_orders"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/orders_red"
             android:title="My Orders" />
         <item
             android:id="@+id/schedule_pickup"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/pickup_red"
             android:title="Schedule Pickup" />
-        <item
-            android:id="@+id/settings"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Settings" />
     </group>
 
     <item
-        android:icon="@drawable/ic_menu_manage"
+        android:icon="@drawable/account_red"
         android:title="Contact Us">
         <menu>
             <item
