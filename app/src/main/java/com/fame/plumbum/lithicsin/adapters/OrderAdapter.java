@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fame.plumbum.lithicsin.R;
+import com.fame.plumbum.lithicsin.interfaces.Choose_image;
 import com.fame.plumbum.lithicsin.interfaces.Load_more;
 import com.fame.plumbum.lithicsin.model.Orders;
 import com.squareup.picasso.Picasso;
@@ -35,6 +36,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
     private static List<Orders> albumList;
     private String parent;
     private Load_more instance = null;
+    private Choose_image image_instance = null;
 
     class VIEW_TYPES {
         static final int Normal = 2;
@@ -73,6 +75,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
     }
 
 
+    public OrderAdapter(Context mContext, List<Orders> albumList, String parent, Load_more instance, Choose_image image_instance) {
+        this.mContext = mContext;
+        OrderAdapter.albumList = albumList;
+        this.parent = parent;
+        this.instance = instance;
+        this.image_instance = image_instance;
+    }
+
     public OrderAdapter(Context mContext, List<Orders> albumList, String parent, Load_more instance) {
         this.mContext = mContext;
         OrderAdapter.albumList = albumList;
@@ -83,25 +93,32 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView;
-        itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.album_card, parent, false);
+        itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_products, parent, false);
         return new MyViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, int position) {
+    public void onBindViewHolder(final MyViewHolder holder, final int position) {
+        Orders album = albumList.get(position);
+        holder.product_name.setText(album.getName());
+        holder.price.setText(album.getPrice());
+        holder.order_number.setText(album.getOrder_id());
+        holder.status.setText(album.getStatus());
+        Picasso.with(mContext).load("http://www.lithics.in/media/catalog/product"+albumList.get(position).getThumbnail()).resize(120, 120).into(holder.thumbnail);
+        if (parent.contentEquals("SchedulePickup")) {
+            holder.rl_orders.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    image_instance.load_image_picker();
+                }
+            });
+        }
         switch(getItemViewType(position)) {
             case Normal:
-                Orders album = albumList.get(position);
-                holder.product_name.setText(album.getName());
-                holder.price.setText(album.getPrice());
-                holder.order_number.setText(album.getOrder_id());
                 holder.load_more.setVisibility(GONE);
-                holder.rl_orders.setVisibility(View.VISIBLE);
-                Picasso.with(mContext).load("http://www.lithics.in/media/catalog/product"+albumList.get(position).getThumbnail()).resize(120, 120).into(holder.thumbnail);
                 break;
             case Footer:
                 holder.load_more.setVisibility(View.VISIBLE);
-                holder.rl_orders.setVisibility(View.GONE);
                 holder.load_more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -110,8 +127,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
                 });
                 break;
         }
-        // loading album cover using Glide library
-//        Glide.with(mContext).load(album.getThumbnail()).into(holder.thumbnail);
     }
 
     /**
@@ -164,24 +179,3 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
         return albumList.size();
     }
 }
-
-
-//
-//        case Footer:
-//        Button load_more = new Button(mContext);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//        load_more.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
-//        }else{
-//        load_more.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimary));
-//        }
-//        load_more.setAllCaps(true);
-//        load_more.setText("Load more");
-//        load_more.setTextColor(0xffffff);
-//        load_more.setOnClickListener(new View.OnClickListener() {
-//@Override
-//public void onClick(View v) {
-//
-//        }
-//        });
-//        itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.footer, parent, false);
-//        break;
