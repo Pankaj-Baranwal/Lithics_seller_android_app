@@ -71,6 +71,48 @@ public class Registration extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.registration);
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sp.contains("sku")){
+            Log.e("SKU", sp.getString("sku", ""));
+            Intent intent = new Intent(Registration.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }else if (sp.contains("id")){
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "checkRegistrationStatus.php",
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            if (response.contains("no")){
+                                Intent intent = new Intent(Registration.this, PleaseWait.class);
+                                startActivity(intent);
+                                finish();
+                            }else{
+                                SharedPreferences.Editor edit = sp.edit();
+                                edit.putString("sku", response);
+                                edit.apply();
+                                Intent intent = new Intent(Registration.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                                Toast.makeText(Registration.this, "Registered!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(Registration.this, "Notifications not working!", Toast.LENGTH_SHORT).show();
+                }
+            }){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("id", sp.getString("id", "1"));
+                    return params;
+                }
+            };
+            Singleton.getInstance().addToRequestQueue(stringRequest);
+        }else{
+            Toast.makeText(this, "Please register first!", Toast.LENGTH_SHORT).show();
+        }
         initCollapsingToolbar();
         try {
             Glide.with(this).load(R.drawable.cover).into((ImageView) findViewById(R.id.backdrop));
@@ -81,21 +123,57 @@ public class Registration extends AppCompatActivity {
     }
 
     private void init() {
-        sp = PreferenceManager.getDefaultSharedPreferences(this);
         submit = (Button) findViewById(R.id.submit_registration);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Registration.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                if (sp.contains("id")) {
+                    StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "checkRegistrationStatus.php",
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    if (response.contains("no")){
+                                        Intent intent = new Intent(Registration.this, PleaseWait.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }else{
+                                        if (response.length()<5) {
+                                            SharedPreferences.Editor edit = sp.edit();
+                                            edit.putString("sku", response);
+                                            edit.apply();
+                                            Intent intent = new Intent(Registration.this, MainActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                            Toast.makeText(Registration.this, "Registered!", Toast.LENGTH_SHORT).show();
+                                        }else{
+                                            Toast.makeText(Registration.this, "Some error occurred", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(Registration.this, "Notifications not working!", Toast.LENGTH_SHORT).show();
+                        }
+                    }){
+                        @Override
+                        protected Map<String, String> getParams() throws AuthFailureError {
+                            Map<String, String> params = new HashMap<String, String>();
+                            params.put("id", sp.getString("id", "1"));
+                            return params;
+                        }
+                    };
+                    Singleton.getInstance().addToRequestQueue(stringRequest);
+                }else{
+                    Toast.makeText(Registration.this, "Please register first!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         official = (RelativeLayout) findViewById(R.id.rl_official_details);
         contact = (RelativeLayout) findViewById(R.id.rl_contact_info);
         misc = (RelativeLayout) findViewById(R.id.rl_miscellaneous);
         misc_list = (RecyclerView) findViewById(R.id.list_misc_questions);
-        adapter = new MiscQuesAdapter(dataList);
+        adapter = new MiscQuesAdapter(dataList, "answers", this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         misc_list.setLayoutManager(mLayoutManager);
         misc_list.setAdapter(adapter);
@@ -109,7 +187,10 @@ public class Registration extends AppCompatActivity {
         official.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                useDialogOfficial();
+                if (sp.contains("id"))
+                    useDialogOfficial();
+                else
+                    Toast.makeText(Registration.this, "Please add Contact Info first!", Toast.LENGTH_SHORT).show();
             }
         });
         misc.setOnClickListener(new View.OnClickListener() {
@@ -157,9 +238,7 @@ public class Registration extends AppCompatActivity {
         final Button permanent = (Button) mView.findViewById(R.id.permanent_address);
         final Button pickup = (Button) mView.findViewById(R.id.pickup_address);
         final Button categories = (Button) mView.findViewById(R.id.product_categories);
-//        final Scene scene1, scene2;
-//        final Transition transition;
-//        final boolean[] start = new boolean[1];
+
         final LinearLayout permanent_wrapper = (LinearLayout) mView.findViewById(R.id.ll_permanent_wrapper);
         final LinearLayout pickup_wrapper = (LinearLayout) mView.findViewById(R.id.ll_pickup_wrapper);
 
@@ -247,6 +326,7 @@ public class Registration extends AppCompatActivity {
                             @Override
                             protected Map<String, String> getParams() throws AuthFailureError {
                                 Map<String, String> params = new HashMap<String, String>();
+                                params.put("id", sp.getString("id", ""));
                                 params.put("vat", vat.getText().toString()+ "");
                                 params.put("cst", cst.getText().toString()+ "");
                                 params.put("permanent", permanent_address_value + "");
@@ -291,22 +371,22 @@ public class Registration extends AppCompatActivity {
                                 new Response.Listener<String>() {
                                     @Override
                                     public void onResponse(String response) {
-                                        if (response.contains("exists")){
-                                            Toast.makeText(Registration.this, "Already registered number!", Toast.LENGTH_SHORT).show();
-                                        }else if (response.contains("id")){
+                                        if (response.contains("id")){
                                             try {
                                                 SharedPreferences.Editor editor = sp.edit();
                                                 JSONArray resp = new JSONArray(response);
                                                 JSONObject jo = resp.getJSONObject(0);
                                                 editor.putString("id", jo.getString("id"));
+                                                editor.putString("name", name_of_organization.getText().toString()+"");
                                                 editor.apply();
                                                 Log.e(getClass().getName(), jo.getString("id")+ " is the ID");
                                                 initFCM();
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
+                                        }else{
+                                            Toast.makeText(Registration.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
                                         }
-
                                     }
                                 }, new Response.ErrorListener() {
                             @Override
@@ -343,7 +423,25 @@ public class Registration extends AppCompatActivity {
 
     private void useDialogMisc() {
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(this);
+//        ViewGroup parent = (ViewGroup) findViewById(R.id.rl_miscellaneous);
+
+//        View mView = layoutInflaterAndroid.inflate(R.layout.dialog_misc, parent, false);
         View mView = layoutInflaterAndroid.inflate(R.layout.dialog_misc, null);
+        RecyclerView dialog_misc_list;
+        RecyclerView.Adapter dialog_adapter;
+        dialog_misc_list = (RecyclerView) mView.findViewById(R.id.list_misc_questions);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        dialog_misc_list.setLayoutManager(mLayoutManager);
+        List<DataSetMiscQues> dialogList = new ArrayList<>();
+        dialog_adapter = new MiscQuesAdapter(dialogList, "questions", this);
+        dialog_misc_list.setAdapter(dialog_adapter);
+        for (int i =0; i<dataList.size(); i++ ){
+            DataSetMiscQues dataset = new DataSetMiscQues();
+            dataset.setQues(dataList.get(i).getQues());
+            dataset.setType(dataList.get(i).getAns());
+            dialogList.add(dataset);
+        }
+        dialog_adapter.notifyDataSetChanged();
 
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(this);
         alertDialogBuilderUserInput.setView(mView);
