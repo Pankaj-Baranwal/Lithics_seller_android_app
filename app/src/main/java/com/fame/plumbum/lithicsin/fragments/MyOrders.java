@@ -91,16 +91,21 @@ public class MyOrders extends Fragment implements Load_more {
                         try {
 //                            Log.e("Last Orders", response);
                             JSONArray jA = new JSONArray(response);
-                            for (int i =0; i<jA.length(); i++ ){
-                                Orders order = new Orders();
-                                order.setName(jA.getJSONObject(i).getString("name"));
-                                order.setOrder_id(jA.getJSONObject(i).getString("increment_id"));
-                                order.setPrice(Double.parseDouble(jA.getJSONObject(i).getString("price_incl_tax")));
-                                order.setStatus(jA.getJSONObject(i).getString("status"));
-                                order.setThumbnail(jA.getJSONObject(i).getString("image"));
-                                OrdersList.add(order);
+                            if (jA.length()>0) {
+                                for (int i = 0; i < jA.length(); i++) {
+                                    Orders order = new Orders();
+                                    order.setName(jA.getJSONObject(i).getString("name"));
+                                    order.setOrder_id(jA.getJSONObject(i).getString("increment_id"));
+                                    order.setPrice(Double.parseDouble(jA.getJSONObject(i).getString("price_incl_tax")));
+                                    order.setStatus(jA.getJSONObject(i).getString("status"));
+                                    order.setThumbnail(jA.getJSONObject(i).getString("image"));
+                                    OrdersList.add(order);
+                                }
+                                adapter.notifyDataSetChanged();
+                            }else{
+                                Toast.makeText(getContext(), "No more products", Toast.LENGTH_SHORT).show();
+                                page--;
                             }
-                            adapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -112,9 +117,9 @@ public class MyOrders extends Fragment implements Load_more {
             }
         }){
             protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
-                params.put("sku", sp.getString("sku", "HCF"));
+                params.put("sku", sp.getString("sku", ""));
                 params.put("count", count+"");
                 params.put("page", page+"");
                 return params;
@@ -167,13 +172,13 @@ public class MyOrders extends Fragment implements Load_more {
     /**
      * RecyclerView item decoration - give equal margin around grid item
      */
-    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+    private class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
         private int spanCount;
         private int spacing;
         private boolean includeEdge;
 
-        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
+        GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
             this.spanCount = spanCount;
             this.spacing = spacing;
             this.includeEdge = includeEdge;

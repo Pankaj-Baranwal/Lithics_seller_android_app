@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.Singleton;
 import com.fame.plumbum.lithicsin.adapters.MiscQuesAdapter;
 import com.fame.plumbum.lithicsin.model.DataSetMiscQues;
+import com.fame.plumbum.lithicsin.utils.Constants;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.json.JSONArray;
@@ -63,6 +65,10 @@ public class MyAccount extends Fragment {
     SharedPreferences sp;
     String permanent_address_value , pickup_address_value, categories_value = "default_value" ;
 
+    boolean pickupDifferent = true;
+
+    TextView name, email_id, contact_person, mb_no, vat, cst, permanent_address, pickup_address, state_of_operation, categories;
+
 
     @Nullable
     @Override
@@ -86,7 +92,7 @@ public class MyAccount extends Fragment {
         contact = (RelativeLayout) rootView.findViewById(R.id.rl_contact_info);
         misc = (RelativeLayout) rootView.findViewById(R.id.rl_miscellaneous);
         misc_list = (RecyclerView) rootView.findViewById(R.id.list_misc_questions);
-        adapter = new MiscQuesAdapter(dataList);
+        adapter = new MiscQuesAdapter(dataList, "answers", getContext());
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         misc_list.setLayoutManager(mLayoutManager);
         misc_list.setAdapter(adapter);
@@ -109,6 +115,62 @@ public class MyAccount extends Fragment {
                 useDialogMisc();
             }
         });
+        name = (TextView) rootView.findViewById(R.id.name_value);
+        email_id = (TextView) rootView.findViewById(R.id.email_value);
+        contact_person = (TextView) rootView.findViewById(R.id.contact_person_value);
+        mb_no = (TextView) rootView.findViewById(R.id.mobile_value);
+        vat = (TextView) rootView.findViewById(R.id.vat_value);
+        cst = (TextView) rootView.findViewById(R.id.cst_value);
+        permanent_address = (TextView) rootView.findViewById(R.id.permanent_address_value);
+        pickup_address = (TextView) rootView.findViewById(R.id.pickup_address_value);
+        state_of_operation = (TextView) rootView.findViewById(R.id.state_value);
+        categories = (TextView) rootView.findViewById(R.id.categories_value);
+        getAllData();
+    }
+
+    private void getAllData() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.BASE_URL_DEFAULT + "receiveProfile.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (response.contains("name")) {
+                            try {
+                                JSONArray jA = new JSONArray(response);
+                                JSONObject jO = jA.getJSONObject(0);
+                                name.setText(jO.getString("seller_name"));
+                                if (!sp.contains("name")){
+                                    SharedPreferences.Editor editor = sp.edit();
+                                    editor.putString("name", jO.getString("seller_name"));
+                                    editor.apply();
+                                }
+                                email_id.setText(jO.getString("email_id"));
+                                contact_person.setText(jO.getString("contact_person"));
+                                mb_no.setText(jO.getString("mobile_number"));
+                                vat.setText(jO.getString("vat"));
+                                cst.setText(jO.getString("cst"));
+                                permanent_address.setText(jO.getString("permanent"));
+                                pickup_address.setText(jO.getString("pickup"));
+                                state_of_operation.setText(jO.getString("state_operation"));
+                                categories.setText(jO.getString("categories"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getContext(), "Error receiving data!", Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("id", sp.getString("id", ""));
+                return params;
+            }
+        };
+        Singleton.getInstance().addToRequestQueue(stringRequest);
     }
 
     private void sendRequest(String url) {
@@ -146,9 +208,7 @@ public class MyAccount extends Fragment {
         final Button permanent = (Button) mView.findViewById(R.id.permanent_address);
         final Button pickup = (Button) mView.findViewById(R.id.pickup_address);
         final Button categories = (Button) mView.findViewById(R.id.product_categories);
-//        final Scene scene1, scene2;
-//        final Transition transition;
-//        final boolean[] start = new boolean[1];
+
         final LinearLayout permanent_wrapper = (LinearLayout) mView.findViewById(R.id.ll_permanent_wrapper);
         final LinearLayout pickup_wrapper = (LinearLayout) mView.findViewById(R.id.ll_pickup_wrapper);
 
@@ -178,9 +238,11 @@ public class MyAccount extends Fragment {
                     pickup.setClickable(false);
                     pickup.setBackgroundColor(0x886db096);
                     pickup_wrapper.setVisibility(View.GONE);
+                    pickupDifferent = false;
                 }else{
                     pickup.setClickable(true);
                     pickup.setBackgroundColor(0xff6db096);
+                    pickupDifferent = true;
                 }
             }
         });
@@ -220,8 +282,12 @@ public class MyAccount extends Fragment {
                 .setCancelable(true)
                 .setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogBox, int id) {
-                        permanent_address_value = street1 + "\n" + street2 + "\n" + city + "\n" + pincode;
-                        pickup_address_value = street1_pickup + "\n" + street2_pickup + "\n" + city_pickup + "\n" + pincode_pickup;
+                        permanent_address_value = street1.getText().toString() + "\n" + street2.getText().toString() + "\n" + city.getText().toString() + "\n" + pincode.getText().toString();
+                        if (pickupDifferent)
+                            pickup_address_value = street1_pickup.getText().toString() + "\n" + street2_pickup.getText().toString() + "\n" + city_pickup.getText().toString() + "\n" + pincode_pickup.getText().toString();
+                        else{
+                            pickup_address_value = permanent_address_value;
+                        }
                         StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "saveOfficialDetails.php",
                                 new Response.Listener<String>() {
                                     @Override
@@ -237,6 +303,7 @@ public class MyAccount extends Fragment {
                             @Override
                             protected Map<String, String> getParams() throws AuthFailureError {
                                 Map<String, String> params = new HashMap<String, String>();
+                                params.put("id", sp.getString("id", ""));
                                 params.put("vat", vat.getText().toString()+ "");
                                 params.put("cst", cst.getText().toString()+ "");
                                 params.put("permanent", permanent_address_value + "");
@@ -277,7 +344,7 @@ public class MyAccount extends Fragment {
                 .setCancelable(true)
                 .setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogBox, int id) {
-                        StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "saveSellerDetails.php",
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT + "updateSellerDetails.php",
                                 new Response.Listener<String>() {
                                     @Override
                                     public void onResponse(String response) {
@@ -305,6 +372,7 @@ public class MyAccount extends Fragment {
                             @Override
                             protected Map<String, String> getParams() throws AuthFailureError {
                                 Map<String, String> params = new HashMap<String, String>();
+                                params.put("id", sp.getString("id", ""));
                                 params.put("seller_name", name_of_organization.getText().toString()+"");
                                 params.put("email_id", email_id.getText().toString()+"");
                                 params.put("contact_person", contact_name.getText().toString()+"");
@@ -324,14 +392,33 @@ public class MyAccount extends Fragment {
                         });
 
         AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
-        alertDialogAndroid.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
 
         alertDialogAndroid.show();
+        alertDialogAndroid.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        alertDialogAndroid.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
     private void useDialogMisc() {
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getContext());
+//        ViewGroup parent = (ViewGroup) findViewById(R.id.rl_miscellaneous);
+
+//        View mView = layoutInflaterAndroid.inflate(R.layout.dialog_misc, parent, false);
         View mView = layoutInflaterAndroid.inflate(R.layout.dialog_misc, null);
+        final RecyclerView dialog_misc_list;
+        RecyclerView.Adapter dialog_adapter;
+        dialog_misc_list = (RecyclerView) mView.findViewById(R.id.list_misc_questions);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        dialog_misc_list.setLayoutManager(mLayoutManager);
+        final List<DataSetMiscQues> dialogList = new ArrayList<>();
+        dialog_adapter = new MiscQuesAdapter(dialogList, "questions", getContext());
+        dialog_misc_list.setAdapter(dialog_adapter);
+        for (int i =0; i<dataList.size(); i++ ){
+            DataSetMiscQues dataset = new DataSetMiscQues();
+            dataset.setQues(dataList.get(i).getQues());
+            dataset.setType(dataList.get(i).getAns());
+            dialogList.add(dataset);
+        }
+        dialog_adapter.notifyDataSetChanged();
 
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(getContext());
         alertDialogBuilderUserInput.setView(mView);
@@ -339,7 +426,23 @@ public class MyAccount extends Fragment {
                 .setCancelable(true)
                 .setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogBox, int id) {
-                        // ToDo get user input here
+                        List<String> data = new ArrayList<>();
+                        for (int i =0; i<dialog_misc_list.getChildCount(); i++) {
+                            View view = dialog_misc_list.getChildAt(i);
+
+                            MaterialEditText ans_text = (MaterialEditText) view.findViewById(R.id.ans_text);
+                            Spinner ans_binary = (Spinner) view.findViewById(R.id.ans_binary);
+                            if (ans_binary.getVisibility()==View.VISIBLE){
+                                if (ans_binary.getSelectedItemPosition()==1)
+                                    data.add("Yes");
+                                else if (ans_binary.getSelectedItemPosition()==2)
+                                    data.add("No");
+                                else
+                                    data.add(" ");
+                            }else
+                                data.add(ans_text.getText().toString());
+                            Log.e("DATA", data.get(i));
+                        }
                     }
                 })
 
@@ -351,9 +454,10 @@ public class MyAccount extends Fragment {
                         });
 
         AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
-        alertDialogAndroid.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
 
         alertDialogAndroid.show();
+        alertDialogAndroid.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        alertDialogAndroid.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
     /**

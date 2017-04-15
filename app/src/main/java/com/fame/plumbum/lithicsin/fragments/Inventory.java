@@ -84,13 +84,22 @@ public class Inventory extends Fragment implements Load_more {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        Log.e(getClass().getName(), response);
                         try {
-//                            Log.e("Last Orders", response);
-                            JSONArray jA = new JSONArray(response);
-                            for (int i =0; i<jA.length(); i++){
-                                dataList.add(new Orders(jA.getJSONObject(i).getString("sku"), Double.parseDouble(jA.getJSONObject(i).getString("V3")), jA.getJSONObject(i).getString("V1"), jA.getJSONObject(i).getString("V2"), Double.parseDouble(jA.getJSONObject(i).getString("qty"))+" pcs"));
+                            if (response.contains("no seller found")){
+                                Toast.makeText(getContext(), "Please register again!", Toast.LENGTH_SHORT).show();
+                            }else {
+                                JSONArray jA = new JSONArray(response);
+                                if (jA.length()>0) {
+                                    for (int i = 0; i < jA.length(); i++) {
+                                        dataList.add(new Orders(jA.getJSONObject(i).getString("sku"), Double.parseDouble(jA.getJSONObject(i).getString("V3")), jA.getJSONObject(i).getString("V1"), jA.getJSONObject(i).getString("V2"), Double.parseDouble(jA.getJSONObject(i).getString("qty")) + " pcs"));
+                                    }
+                                    adapter.notifyDataSetChanged();
+                                }else{
+                                    Toast.makeText(getContext(), "No more products", Toast.LENGTH_SHORT).show();
+                                    page--;
+                                }
                             }
-                            adapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             Log.e("ERROR", e.getMessage());
                         }
@@ -104,7 +113,7 @@ public class Inventory extends Fragment implements Load_more {
             protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
-                params.put("seller_id", sp.getString("seller_id", "24"));
+                params.put("seller_id", sp.getString("id", ""));
                 params.put("count", count+"");
                 params.put("page", page+"");
                 return params;

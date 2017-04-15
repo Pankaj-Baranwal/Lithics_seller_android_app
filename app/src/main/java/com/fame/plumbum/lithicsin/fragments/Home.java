@@ -41,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,16 +62,7 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
     int count = 5;
     int page = 0;
 
-    protected String[] mMonths = new String[] {
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"
-    };
-
-    protected String[] mParties = new String[] {
-            "Party A", "Party B", "Party C", "Party D", "Party E", "Party F", "Party G", "Party H",
-            "Party I", "Party J", "Party K", "Party L", "Party M", "Party N", "Party O", "Party P",
-            "Party Q", "Party R", "Party S", "Party T", "Party U", "Party V", "Party W", "Party X",
-            "Party Y", "Party Z"
-    };
+    protected List<String> mMonths = new ArrayList<>(Arrays.asList("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"));
 
 
     @Nullable
@@ -124,7 +116,7 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
         // add a selection listener
         mChart.setOnChartValueSelectedListener(this);
 
-        setData(4, 100);
+        getPieData();
 
         mChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
         // mChart.spin(2000, 0, 360);
@@ -137,28 +129,22 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
         l.setEnabled(false);
     }
 
-    public void sendRequest(String url) {
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+    private void getPieData() {
+        final float[][] data = new float[1][12];
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL_DEFAULT+"getMonthlyData.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
-//                            Log.e("Last Orders", response);
                             JSONArray jA = new JSONArray(response);
-                            for (int i =0; i<jA.length(); i++ ){
-                                Orders order = new Orders();
-                                order.setName(jA.getJSONObject(i).getString("name"));
-                                order.setOrder_id(jA.getJSONObject(i).getString("increment_id"));
-                                order.setPrice(Double.parseDouble(jA.getJSONObject(i).getString("price_incl_tax")));
-                                order.setStatus(jA.getJSONObject(i).getString("status"));
-                                order.setThumbnail(jA.getJSONObject(i).getString("image"));
-                                dataList.add(order);
+                            Log.e("LENGTHJA", jA.length()+ " " + jA.getString(0));
+                            if (jA.length()>0) {
+                                for (int i =0; i<jA.length(); i++) {
+                                    data[0][mMonths.indexOf(jA.getString(i))]++;
+                                    Log.e("LENGTHJA", data[0][mMonths.indexOf(jA.getString(i))]+"");
+                                }
+                                setData(data[0]);
                             }
-                            adapter.notifyDataSetChanged();
-                            list_orders.setAdapter(adapter);
-                            list_orders.setVisibility(View.VISIBLE);
-                            TextView no_product = (TextView) rootView.findViewById(R.id.no_products);
-                            no_product.setVisibility(View.GONE);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -167,12 +153,59 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(getContext(), "Error receiving data!", Toast.LENGTH_SHORT).show();
+                Log.e(getClass().getName(), error.getMessage() + "");
             }
         }){
             protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
-                params.put("sku", sp.getString("sku", "HCF"));
+                params.put("sku", sp.getString("sku", ""));
+                return params;
+            }};
+        Singleton.getInstance().addToRequestQueue(stringRequest);
+    }
+
+    public void sendRequest(String url) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jA = new JSONArray(response);
+                            if (jA.length()>0) {
+                                TextView no_product = (TextView) rootView.findViewById(R.id.no_products);
+                                no_product.setVisibility(View.GONE);
+                                for (int i = 0; i < jA.length(); i++) {
+                                    Orders order = new Orders();
+                                    order.setName(jA.getJSONObject(i).getString("name"));
+                                    order.setOrder_id(jA.getJSONObject(i).getString("increment_id"));
+                                    order.setPrice(Double.parseDouble(jA.getJSONObject(i).getString("price_incl_tax")));
+                                    order.setStatus(jA.getJSONObject(i).getString("status"));
+                                    order.setThumbnail(jA.getJSONObject(i).getString("image"));
+                                    dataList.add(order);
+                                }
+                                adapter.notifyDataSetChanged();
+                                list_orders.setAdapter(adapter);
+                                list_orders.setVisibility(View.VISIBLE);
+                            }else{
+                                Toast.makeText(getContext(), "No new products found!", Toast.LENGTH_SHORT).show();
+                                page--;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getContext(), "Error receiving data!", Toast.LENGTH_SHORT).show();
+                Log.e(getClass().getName(), error.getMessage() + "");
+            }
+        }){
+            protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+                params.put("sku", sp.getString("sku", ""));
                 params.put("count", count+"");
                 params.put("page", page+"");
                 return params;
@@ -180,16 +213,15 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
         Singleton.getInstance().addToRequestQueue(stringRequest);
     }
 
-    private void setData(int count, float range) {
-
-        float mult = range;
+    private void setData(float[] range) {
 
         ArrayList<PieEntry> entries = new ArrayList<PieEntry>();
-
-        // NOTE: The order of the entries when being added to the entries array determines their position around the center of
-        // the chart.
-        for (int i = 0; i < count; i++) {
-            entries.add(new PieEntry((float) (Math.random() * mult) + mult / 5, mParties[i % mParties.length]));
+        Log.e("LENGTH", range.length+"");
+        for (int i = 0; i < range.length; i++) {
+            if (range[i]!=0) {
+                entries.add(new PieEntry(range[i], mMonths.get(i)));
+                Log.e("VALUES", i + "  " + range[i]);
+            }
         }
 
         PieDataSet dataSet = new PieDataSet(entries, "Orders");
