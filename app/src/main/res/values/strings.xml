@@ -13,6 +13,7 @@
     <string name="my_account">My Account</string>
     <string name="registration">Registration</string>
     <string name="inventory">Inventory</string>
+    <string name="pickups">Pickups</string>
     <string name="date_format">EEE MMM dd HH:mm:ss yyyy</string>
     <string-array name="states">
         <item>
@@ -127,5 +128,16 @@
             West Bengal
         </item>
 
+    </string-array>
+    <string-array name="binary">
+        <item>
+            Choose one option
+        </item>
+        <item>
+            Yes
+        </item>
+        <item>
+            No
+        </item>
     </string-array>
 </resources>
