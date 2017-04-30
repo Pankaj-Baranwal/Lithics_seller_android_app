@@ -92,6 +92,7 @@ public class MyAccount extends Fragment {
         contact = (RelativeLayout) rootView.findViewById(R.id.rl_contact_info);
         misc = (RelativeLayout) rootView.findViewById(R.id.rl_miscellaneous);
         misc_list = (RecyclerView) rootView.findViewById(R.id.list_misc_questions);
+        misc_list.setNestedScrollingEnabled(false);
         adapter = new MiscQuesAdapter(dataList, "answers", getContext());
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         misc_list.setLayoutManager(mLayoutManager);
@@ -366,7 +367,7 @@ public class MyAccount extends Fragment {
                                 }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(getContext(), "Notifications not working!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Something not working!", Toast.LENGTH_SHORT).show();
                             }
                         }){
                             @Override

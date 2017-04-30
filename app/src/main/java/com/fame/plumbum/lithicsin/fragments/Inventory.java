@@ -70,6 +70,7 @@ public class Inventory extends Fragment implements Load_more {
 
     private void init() {
         RecyclerView list_orders = (RecyclerView) rootView.findViewById(R.id.list_products);
+        list_orders.setNestedScrollingEnabled(false);
         adapter = new OrderAdapter(getContext(), dataList, "Inventory", this);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
         list_orders.setLayoutManager(mLayoutManager);

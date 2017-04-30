@@ -1,21 +1,18 @@
 package com.fame.plumbum.lithicsin.adapters;
 
 import android.content.Context;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.interfaces.Choose_image;
+import com.fame.plumbum.lithicsin.interfaces.Get_order_details;
 import com.fame.plumbum.lithicsin.interfaces.Load_more;
 import com.fame.plumbum.lithicsin.model.Orders;
 import com.squareup.picasso.Picasso;
@@ -36,6 +33,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
     private static List<Orders> albumList;
     private String parent;
     private Load_more instance = null;
+    private Get_order_details get_order_details= null;
     private Choose_image image_instance = null;
 
     class VIEW_TYPES {
@@ -83,6 +81,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
         this.image_instance = image_instance;
     }
 
+    public OrderAdapter(Context mContext, List<Orders> albumList, String parent, Load_more instance, Get_order_details get_order_details) {
+        this.mContext = mContext;
+        OrderAdapter.albumList = albumList;
+        this.parent = parent;
+        this.instance = instance;
+        this.get_order_details = get_order_details;
+    }
+
     public OrderAdapter(Context mContext, List<Orders> albumList, String parent, Load_more instance) {
         this.mContext = mContext;
         OrderAdapter.albumList = albumList;
@@ -104,12 +110,19 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
         holder.price.setText(album.getPrice());
         holder.order_number.setText(album.getOrder_id());
         holder.status.setText(album.getStatus());
-        Picasso.with(mContext).load("http://www.lithics.in/media/catalog/product"+albumList.get(position).getThumbnail()).resize(120, 120).into(holder.thumbnail);
+        Picasso.with(mContext).load("http://www.lithics.in/media/catalog/product"+album.getThumbnail()).resize(120, 120).into(holder.thumbnail);
         if (parent.contentEquals("SchedulePickup")) {
             holder.rl_orders.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     image_instance.load_image_picker();
+                }
+            });
+        }else if (parent.contentEquals("MyOrders")) {
+            holder.rl_orders.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    get_order_details.onInterfaceClick(holder.getAdapterPosition());
                 }
             });
         }
@@ -126,51 +139,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.MyViewHolder
                     }
                 });
                 break;
-        }
-    }
-
-    /**
-     * Showing popup menu when tapping on 3 dots
-     */
-    private void showPopupMenu(View view) {
-        // inflate menu
-        PopupMenu popup = new PopupMenu(mContext, view);
-        MenuInflater inflater = popup.getMenuInflater();
-        if (parent.contentEquals("Pickup")){
-            inflater.inflate(R.menu.menu_pickup, popup.getMenu());
-        } else if (parent.contentEquals("MyOrders"))
-            inflater.inflate(R.menu.menu_orders, popup.getMenu());
-        popup.setOnMenuItemClickListener(new MyMenuItemClickListener());
-        popup.show();
-    }
-
-    /**
-     * Click listener for popup menu items
-     */
-    private class MyMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
-
-        MyMenuItemClickListener() {
-
-        }
-
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            switch (menuItem.getItemId()) {
-                case R.id.action_add_favourite:
-                    Toast.makeText(mContext, "Add to favourite", Toast.LENGTH_SHORT).show();
-                    return true;
-                case R.id.action_play_next:
-                    Toast.makeText(mContext, "Play next", Toast.LENGTH_SHORT).show();
-                    return true;
-                case R.id.action_schedule_pickup:
-                    Toast.makeText(mContext, "Schedule Pickup", Toast.LENGTH_SHORT).show();
-                    return true;
-                case R.id.action_cancel:
-                    Toast.makeText(mContext, "Cancel", Toast.LENGTH_SHORT).show();
-                    return true;
-                default:
-            }
-            return false;
         }
     }
 

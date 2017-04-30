@@ -1,5 +1,6 @@
 package com.fame.plumbum.lithicsin.fragments;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,7 +23,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.Singleton;
+import com.fame.plumbum.lithicsin.activities.OrderDetails;
 import com.fame.plumbum.lithicsin.adapters.OrderAdapter;
+import com.fame.plumbum.lithicsin.interfaces.Get_order_details;
 import com.fame.plumbum.lithicsin.interfaces.Load_more;
 import com.fame.plumbum.lithicsin.model.Orders;
 import com.github.mikephil.charting.animation.Easing;
@@ -52,7 +55,7 @@ import static com.fame.plumbum.lithicsin.utils.Constants.BASE_URL_DEFAULT;
  * Created by pankaj on 15/1/17.
  */
 
-public class Home extends Fragment implements OnChartValueSelectedListener, Load_more {
+public class Home extends Fragment implements OnChartValueSelectedListener, Get_order_details, Load_more {
 
     View rootView;
     private PieChart mChart;
@@ -78,7 +81,8 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
 
     private void init() {
         list_orders = (RecyclerView) rootView.findViewById(R.id.list_orders);
-        adapter = new OrderAdapter(getActivity(), dataList, "1", this);
+        list_orders.setNestedScrollingEnabled(false);
+        adapter = new OrderAdapter(getContext(), dataList, "MyOrders", this, this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         list_orders.setLayoutManager(mLayoutManager);
         list_orders.setAdapter(adapter);
@@ -146,6 +150,7 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
                                 setData(data[0]);
                             }
                         } catch (JSONException e) {
+                            Log.e("months data", e.getMessage());
                             e.printStackTrace();
                         }
                     }
@@ -153,7 +158,7 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(getContext(), "Error receiving data!", Toast.LENGTH_SHORT).show();
-                Log.e(getClass().getName(), error.getMessage() + "");
+                Log.e(getClass().getName(), error+"");
             }
         }){
             protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
@@ -192,14 +197,15 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
                                 page--;
                             }
                         } catch (JSONException e) {
+                            Log.e("Orders Error", e.getMessage());
                             e.printStackTrace();
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), "Error receiving data!", Toast.LENGTH_SHORT).show();
-                Log.e(getClass().getName(), error.getMessage() + "");
+                Toast.makeText(getContext(), "Error receiving order data!", Toast.LENGTH_SHORT).show();
+                Log.e(getClass().getName(), error+"");
             }
         }){
             protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
@@ -295,5 +301,12 @@ public class Home extends Fragment implements OnChartValueSelectedListener, Load
     public void onInterfaceClick() {
         page++;
         sendRequest(BASE_URL_DEFAULT + "getLastOrders.php");
+    }
+
+    @Override
+    public void onInterfaceClick(int position) {
+        Intent intent = new Intent(getActivity(), OrderDetails.class);
+        intent.putExtra("increment_id", dataList.get(position).getOrder_id());
+        startActivity(intent);
     }
 }

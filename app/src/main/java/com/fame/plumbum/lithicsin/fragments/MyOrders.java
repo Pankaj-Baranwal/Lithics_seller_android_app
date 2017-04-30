@@ -1,5 +1,6 @@
 package com.fame.plumbum.lithicsin.fragments;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Rect;
@@ -27,7 +28,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
 import com.fame.plumbum.lithicsin.R;
 import com.fame.plumbum.lithicsin.Singleton;
+import com.fame.plumbum.lithicsin.activities.OrderDetails;
 import com.fame.plumbum.lithicsin.adapters.OrderAdapter;
+import com.fame.plumbum.lithicsin.interfaces.Get_order_details;
 import com.fame.plumbum.lithicsin.interfaces.Load_more;
 import com.fame.plumbum.lithicsin.model.Orders;
 
@@ -45,12 +48,13 @@ import static com.fame.plumbum.lithicsin.utils.Constants.BASE_URL_DEFAULT;
  * Created by pankaj on 17/1/17.
  */
 
-public class MyOrders extends Fragment implements Load_more {
+public class MyOrders extends Fragment implements Get_order_details, Load_more {
 
     View rootView;
     private OrderAdapter adapter;
     private List<Orders> OrdersList;
     private int count = 10, page = 0;
+    String increment_id;
 
     @Nullable
     @Override
@@ -71,9 +75,10 @@ public class MyOrders extends Fragment implements Load_more {
 
     private void init() {
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.list_products);
+        recyclerView.setNestedScrollingEnabled(false);
 
         OrdersList = new ArrayList<>();
-        adapter = new OrderAdapter(getContext(), OrdersList, "MyOrders", this);
+        adapter = new OrderAdapter(getContext(), OrdersList, "MyOrders", this, this);
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getContext(), 1);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -95,6 +100,7 @@ public class MyOrders extends Fragment implements Load_more {
                                 for (int i = 0; i < jA.length(); i++) {
                                     Orders order = new Orders();
                                     order.setName(jA.getJSONObject(i).getString("name"));
+                                    increment_id = jA.getJSONObject(i).getString("increment_id");
                                     order.setOrder_id(jA.getJSONObject(i).getString("increment_id"));
                                     order.setPrice(Double.parseDouble(jA.getJSONObject(i).getString("price_incl_tax")));
                                     order.setStatus(jA.getJSONObject(i).getString("status"));
@@ -164,9 +170,15 @@ public class MyOrders extends Fragment implements Load_more {
     }
 
     @Override
+    public void onInterfaceClick(int position) {
+        Intent intent = new Intent(getActivity(), OrderDetails.class);
+        intent.putExtra("increment_id", OrdersList.get(position).getOrder_id());
+        startActivity(intent);
+    }
+
+    @Override
     public void onInterfaceClick() {
-        page++;
-        sendRequest(BASE_URL_DEFAULT + "getLastOrders.php");
+
     }
 
     /**

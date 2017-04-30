@@ -111,13 +111,13 @@ public class SchedulePickup extends Fragment implements Load_more, Choose_image 
      */
     public Intent getPickImageChooserIntent() {
 
-// Determine Uri of camera image to  save.
+        // Determine Uri of camera image to  save.
         Uri outputFileUri =  getCaptureImageOutputUri();
 
         List<Intent> allIntents = new ArrayList<>();
         PackageManager packageManager =  getContext().getPackageManager();
 
-// collect all camera intents
+        // collect all camera intents
         Intent captureIntent = new  Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         List<ResolveInfo> listCam =  packageManager.queryIntentActivities(captureIntent, 0);
         for (ResolveInfo res : listCam) {
@@ -130,7 +130,7 @@ public class SchedulePickup extends Fragment implements Load_more, Choose_image 
             allIntents.add(intent);
         }
 
-// collect all gallery intents
+        // collect all gallery intents
         Intent galleryIntent = new  Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
         List<ResolveInfo> listGallery =  packageManager.queryIntentActivities(galleryIntent, 0);
@@ -141,7 +141,7 @@ public class SchedulePickup extends Fragment implements Load_more, Choose_image 
             allIntents.add(intent);
         }
 
-// the main intent is the last in the  list (fucking android) so pickup the useless one
+        // the main intent is the last in the  list (fucking android) so pickup the useless one
         Intent mainIntent =  allIntents.get(allIntents.size() - 1);
         for (Intent intent : allIntents) {
             if  (intent.getComponent().getClassName().equals("com.android.documentsui.DocumentsActivity"))  {
@@ -151,10 +151,10 @@ public class SchedulePickup extends Fragment implements Load_more, Choose_image 
         }
         allIntents.remove(mainIntent);
 
-// Create a chooser from the main  intent
+        // Create a chooser from the main  intent
         Intent chooserIntent =  Intent.createChooser(mainIntent, "Select source");
 
-// Add all other intents
+        // Add all other intents
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,  allIntents.toArray(new Parcelable[allIntents.size()]));
 
         return chooserIntent;
@@ -285,6 +285,7 @@ public class SchedulePickup extends Fragment implements Load_more, Choose_image 
 
     private void init() {
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        recyclerView.setNestedScrollingEnabled(false);
 
         OrdersList = new ArrayList<>();
         adapter = new OrderAdapter(getContext(), OrdersList, "SchedulePickup", this, this);

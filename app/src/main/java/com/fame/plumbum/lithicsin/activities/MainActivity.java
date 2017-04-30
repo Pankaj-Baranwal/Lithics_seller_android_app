@@ -47,7 +47,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     LinearLayout analytics_home;
     FrameLayout view;
     TextView connect;
-    ImageButton slide, fb, blog, twitter;
+    ImageButton slide;
+    TextView fb, blog, twitter;
     Button cancel;
     String fb_link, blog_link, twitter_link;
     boolean onHome = true, socialClicked = false;
@@ -197,14 +198,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
-        org_image = (ImageView) findViewById(R.id.org_image);
-        getImage();
+//        org_image = (ImageView) findViewById(R.id.org_image);
+//        getImage();
 
 //        drawer.openDrawer(GravityCompat.START);
         cancel = (Button) findViewById(R.id.cancel);
         cancel.setOnClickListener(this);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        TextView name_org = (TextView) findViewById(R.id.name_organization);
+        View headerView = navigationView.getHeaderView(0);
+        TextView name_org = (TextView) headerView.findViewById(R.id.name_organization);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         if (sp.contains("name"))
             name_org.setText(sp.getString("name", "Lithics.in"));
@@ -216,9 +218,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.replace(R.id.content_frame, new Home());
         view.setVisibility(View.VISIBLE);
         ft.commit();
-        fb = (ImageButton) findViewById(R.id.fb);
-        blog = (ImageButton) findViewById(R.id.blog);
-        twitter = (ImageButton) findViewById(R.id.twitter);
+        fb = (TextView) findViewById(R.id.fb);
+        blog = (TextView) findViewById(R.id.blog);
+        twitter = (TextView) findViewById(R.id.twitter);
         connect = (TextView) findViewById(R.id.connect);
         connect.setOnClickListener(this);
         slide.setOnClickListener(this);
